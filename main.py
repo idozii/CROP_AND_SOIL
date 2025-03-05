@@ -66,3 +66,4 @@ def humidity_level(h):
         return 'Low'
 data['Humidity'] = data['Humidity'].apply(humidity_level)
 
+print(data.head())
