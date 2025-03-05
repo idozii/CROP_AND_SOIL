@@ -12,6 +12,6 @@ from keras.layers import BatchNormalization
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
-# Load the data
+#! Load the data
 data = pd.read_csv('data/data.csv')
-print(data.info())
+print(data.isnull().sum())
