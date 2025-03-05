@@ -8,9 +8,9 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 data = pd.read_csv('data/data.csv')
 
 #! Numerical columns
-numerical_cols = data.select_dtypes(include=[np.number]).columns.tolist()
+numerical_cols = data.select_dtypes(include=[float, int]).columns.tolist()
 print(numerical_cols)
 #! Categorical columns
-categorical_cols = data.select_dtypes(include=[np.object]).columns.tolist()
+categorical_cols = data.select_dtypes(include=[object]).columns.tolist()
 print(categorical_cols)
 #! Split the data
