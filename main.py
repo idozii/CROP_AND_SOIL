@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.ensemble import RandomForestClassifier
+import joblib
 
 #! Load the data
 data = pd.read_csv('data/data.csv')
@@ -102,6 +103,9 @@ crop_model.fit(X_crop_train, y_crop_train)
 # Train the RandomForestClassifier for fertilizer recommendation
 fertilizer_model = RandomForestClassifier(n_estimators=100, random_state=42)
 fertilizer_model.fit(X_fertilizer_train, y_fertilizer_train)
+
+joblib.dump(crop_model, 'crop_model.pkl')
+joblib.dump(fertilizer_model, 'fertilizer_model.pkl')
 
 # Evaluate the crop model
 y_crop_pred = crop_model.predict(X_crop_test)
