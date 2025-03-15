@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.ensemble import RandomForestClassifier
 
 #! Load the data
@@ -114,6 +114,18 @@ y_fertilizer_pred = fertilizer_model.predict(X_fertilizer_test)
 print(f'Fertilizer Model Accuracy: {accuracy_score(y_fertilizer_test, y_fertilizer_pred)}')
 print(f'Fertilizer Model Classification Report:\n{classification_report(y_fertilizer_test, y_fertilizer_pred)}')
 print(f'Fertilizer Model Confusion Matrix:\n{confusion_matrix(y_fertilizer_test, y_fertilizer_pred)}')
+
+# Plot confusion matrices
+fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+
+ConfusionMatrixDisplay.from_estimator(crop_model, X_crop_test, y_crop_test, ax=ax[0], cmap='Blues')
+ax[0].set_title('Crop Model Confusion Matrix')
+
+ConfusionMatrixDisplay.from_estimator(fertilizer_model, X_fertilizer_test, y_fertilizer_test, ax=ax[1], cmap='Blues')
+ax[1].set_title('Fertilizer Model Confusion Matrix')
+
+plt.tight_layout()
+plt.savefig('confusion_matrices.png')  # Save the plot to a file
 
 # Function to recommend crop using the trained model
 def recommend_crop_ml(soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus):
