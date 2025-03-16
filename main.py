@@ -3,14 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+import xgboost as xgb
 import joblib
 
 #! Load the data
 data = pd.read_csv('data/data.csv')
 
 # Define features and target for fertilizer recommendation before dropping the column
-y_fertilizer = data['Fertilizer Name']
+fertilizer_label_encoder = LabelEncoder()
+y_fertilizer = fertilizer_label_encoder.fit_transform(data['Fertilizer Name'])
 
 # Drop the 'Fertilizer Name' column as it is not needed for the model
 data = data.drop(columns=['Fertilizer Name'])
@@ -83,9 +85,12 @@ data['Humidity'] = data['Humidity'].apply(humidity_level)
 # Encode categorical variables
 data_encoded = pd.get_dummies(data, columns=['Soil Type', 'Temparature', 'Humidity', 'Moisture', 'Nitrogen', 'Potassium', 'Phosphorous'])
 
-# Define features and target for crop recommendation
+# Encode the target variable for crop recommendation
+crop_label_encoder = LabelEncoder()
+y_crop = crop_label_encoder.fit_transform(data_encoded['Crop Type'])
+
+# Define features for crop recommendation
 X_crop = data_encoded.drop('Crop Type', axis=1)
-y_crop = data_encoded['Crop Type']
 
 # Define features and target for fertilizer recommendation
 X_fertilizer = data_encoded.drop('Crop Type', axis=1)
@@ -96,27 +101,30 @@ X_crop_train, X_crop_test, y_crop_train, y_crop_test = train_test_split(X_crop, 
 # Split the data into training and testing sets for fertilizer recommendation
 X_fertilizer_train, X_fertilizer_test, y_fertilizer_train, y_fertilizer_test = train_test_split(X_fertilizer, y_fertilizer, test_size=0.2, random_state=42)
 
-# Train the RandomForestClassifier for crop recommendation
-crop_model = RandomForestClassifier(n_estimators=100, random_state=42)
+# Train the XGBoost model for crop recommendation
+crop_model = xgb.XGBClassifier(tree_method='gpu_hist', random_state=42)
 crop_model.fit(X_crop_train, y_crop_train)
 
-# Train the RandomForestClassifier for fertilizer recommendation
-fertilizer_model = RandomForestClassifier(n_estimators=100, random_state=42)
+# Train the XGBoost model for fertilizer recommendation
+fertilizer_model = xgb.XGBClassifier(tree_method='gpu_hist', random_state=42)
 fertilizer_model.fit(X_fertilizer_train, y_fertilizer_train)
 
+# Save the trained models
 joblib.dump(crop_model, 'crop_model.pkl')
 joblib.dump(fertilizer_model, 'fertilizer_model.pkl')
+joblib.dump(crop_label_encoder, 'crop_label_encoder.pkl')  # Save the crop label encoder
+joblib.dump(fertilizer_label_encoder, 'fertilizer_label_encoder.pkl')  # Save the fertilizer label encoder
 
 # Evaluate the crop model
 y_crop_pred = crop_model.predict(X_crop_test)
 print(f'Crop Model Accuracy: {accuracy_score(y_crop_test, y_crop_pred)}')
-print(f'Crop Model Classification Report:\n{classification_report(y_crop_test, y_crop_pred)}')
+print(f'Crop Model Classification Report:\n{classification_report(y_crop_test, y_crop_pred, target_names=crop_label_encoder.classes_)}')
 print(f'Crop Model Confusion Matrix:\n{confusion_matrix(y_crop_test, y_crop_pred)}')
 
 # Evaluate the fertilizer model
 y_fertilizer_pred = fertilizer_model.predict(X_fertilizer_test)
 print(f'Fertilizer Model Accuracy: {accuracy_score(y_fertilizer_test, y_fertilizer_pred)}')
-print(f'Fertilizer Model Classification Report:\n{classification_report(y_fertilizer_test, y_fertilizer_pred)}')
+print(f'Fertilizer Model Classification Report:\n{classification_report(y_fertilizer_test, y_fertilizer_pred, target_names=fertilizer_label_encoder.classes_)}')
 print(f'Fertilizer Model Confusion Matrix:\n{confusion_matrix(y_fertilizer_test, y_fertilizer_pred)}')
 
 # Plot confusion matrices
@@ -145,7 +153,7 @@ def recommend_crop_ml(soil_type, temperature, humidity, moisture, nitrogen, pota
     input_data_encoded = pd.get_dummies(input_data)
     input_data_encoded = input_data_encoded.reindex(columns=X_crop.columns, fill_value=0)
     prediction = crop_model.predict(input_data_encoded)
-    return prediction[0]
+    return crop_label_encoder.inverse_transform(prediction)[0]  # Decode the prediction
 
 # Function to recommend fertilizer using the trained model
 def recommend_fertilizer_ml(soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus):
@@ -161,7 +169,7 @@ def recommend_fertilizer_ml(soil_type, temperature, humidity, moisture, nitrogen
     input_data_encoded = pd.get_dummies(input_data)
     input_data_encoded = input_data_encoded.reindex(columns=X_fertilizer.columns, fill_value=0)
     prediction = fertilizer_model.predict(input_data_encoded)
-    return prediction[0]
+    return fertilizer_label_encoder.inverse_transform(prediction)[0]  # Decode the prediction
 
 # Example usage with machine learning model
 soil_type = 'Sandy'
