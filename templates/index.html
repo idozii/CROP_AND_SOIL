@@ -1,4 +1,3 @@
-<!-- filepath: /home/idozii/Documents/DATASCIENCE/CROP_AND_SOIL/templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,6 +34,11 @@
         {% if fertilizer_prediction %}
             <div class="result">
                 <h2>Recommended Fertilizer: {{ fertilizer_prediction }}</h2>
+            </div>
+        {% endif %}
+        {% if error %}
+            <div class="error">
+                <h2>Error: {{ error }}</h2>
             </div>
         {% endif %}
     </div>

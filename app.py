@@ -1,20 +1,16 @@
-# filepath: /home/idozii/Documents/DATASCIENCE/CROP_AND_SOIL/app.py
 from flask import Flask, request, render_template
 import pandas as pd
 import joblib
 
 app = Flask(__name__)
 
-# Load the trained models
-crop_model = joblib.load('crop_model.pkl')
-fertilizer_model = joblib.load('fertilizer_model.pkl')
+crop_model = joblib.load('model/crop_model.pkl')
+fertilizer_model = joblib.load('model/fertilizer_model.pkl')
 
-# Define the home route
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# Define the prediction route
 @app.route('/predict', methods=['POST'])
 def predict():
     soil_type = request.form['soil_type']
