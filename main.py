@@ -104,8 +104,8 @@ crop_model.fit(X_crop_train, y_crop_train)
 fertilizer_model = RandomForestClassifier(n_estimators=100, random_state=42)
 fertilizer_model.fit(X_fertilizer_train, y_fertilizer_train)
 
-joblib.dump(crop_model, 'crop_model.pkl')
-joblib.dump(fertilizer_model, 'fertilizer_model.pkl')
+joblib.dump(crop_model, 'model/crop_model.pkl')
+joblib.dump(fertilizer_model, 'model/fertilizer_model.pkl')
 
 # Evaluate the crop model
 y_crop_pred = crop_model.predict(X_crop_test)
@@ -129,7 +129,7 @@ ConfusionMatrixDisplay.from_estimator(fertilizer_model, X_fertilizer_test, y_fer
 ax[1].set_title('Fertilizer Model Confusion Matrix')
 
 plt.tight_layout()
-plt.savefig('confusion_matrices.png')  # Save the plot to a file
+plt.savefig('figures/confusion_matrices.png')  # Save the plot to a file
 
 # Function to recommend crop using the trained model
 def recommend_crop_ml(soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus):
