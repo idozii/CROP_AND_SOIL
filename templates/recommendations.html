@@ -1,11 +1,155 @@
-_AND_SOIL/templates/recommendations.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recommendations - idozii</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles5.css') }}">
+    <!-- Add the main stylesheet first, then the specific one -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles4.css') }}">
+    <style>
+        /* Additional styles for recommendations page */
+        .recommendation-results {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .result-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .result-header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .algorithm-badge {
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .prediction {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .prediction h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .input-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .input-item {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
+        
+        .input-label {
+            display: block;
+            font-weight: 500;
+            color: #5a6c7d;
+            margin-bottom: 5px;
+        }
+        
+        .input-value {
+            display: block;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: #3d8b40;
+        }
+        
+        .secondary-btn {
+            background: #3498db;
+        }
+        
+        .secondary-btn:hover {
+            background: #2980b9;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .algorithm-badge {
+                margin-top: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
