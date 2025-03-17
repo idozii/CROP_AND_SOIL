@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Algorithm - Agriculture</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles4.css') }}">
+    <title>Select Algorithm - idozii</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles5.css') }}">
 </head>
 <body>
     <header>
         <div class="navbar">
-            <div class="logo">AGRICULTURE</div>
+            <div class="logo">idozii</div>
             <nav>
                 <ul>
                     <li><a href="{{ url_for('home') }}">Home</a></li>
                     <li><a href="{{ url_for('real_data') }}">Real Data</a></li>
                     <li><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
+                    <li><a href="{{ url_for('select_algorithm') }}" class="active">Models</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('user') }}">User</a></li>
-                    <li><a href="{{ url_for('select_algorithm') }}" class="active">Models</a></li>
                 </ul>
             </nav>
         </div>
@@ -64,6 +64,12 @@
                     <li><strong>Neural Network</strong>: Handles complex patterns, deep learning capability</li>
                     <li><strong>Logistic Regression</strong>: Fast, interpretable model with linear boundaries</li>
                 </ul>
+            </div>
+            
+            <div class="comparison">
+                <h2>Model Performance</h2>
+                <p>View detailed information about each model's performance:</p>
+                <a href="{{ url_for('model_info') }}" class="select-btn">View Model Details</a>
             </div>
         </div>
     </div>
