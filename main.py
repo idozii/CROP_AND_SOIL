@@ -165,7 +165,7 @@ def train_models(algorithm='rf'):
     ax[1].set_title(f'Fertilizer Model ({algo_name}) Confusion Matrix')
 
     plt.tight_layout()
-    plt.savefig(f'figures/confusion_matrices_{algorithm}.png')
+    plt.savefig(f'static/figures/confusion_matrices_{algorithm}.png')
     
     return crop_model, fertilizer_model, crop_accuracy, fertilizer_accuracy
 
@@ -272,8 +272,8 @@ def compare_algorithms():
     plt.grid(axis='y', alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('figures/algorithm_comparison.png')
-    print("Comparison chart saved to figures/algorithm_comparison.png")
+    plt.savefig('static/figures/algorithm_comparison.png')
+    print("Comparison chart saved to static/figures/algorithm_comparison.png")
     
     return results_df
 
