@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - idozii</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles1.css') }}">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">idozii</div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('real_data') }}">Real Data</a></li>
+                    <li><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
+                    <li><a href="{{ url_for('about') }}" class="active">About</a></li>
+                    <li><a href="{{ url_for('user') }}">User</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="background">
+        <div class="container">
+            <div class="about-section">
+                <h1>About Agriculture</h1>
+                
+                <div class="about-card">
+                    <h2>Our Mission</h2>
+                    <p>Empowering farmers with cutting-edge technology and data-driven insights to optimize agricultural practices and improve crop yields sustainably.</p>
+                </div>
+
+                <div class="about-card">
+                    <h2>What We Offer</h2>
+                    <div class="features-grid">
+                        <div class="feature">
+                            <h3>Crop Recommendations</h3>
+                            <p>Advanced ML models to suggest the best crops for your soil conditions.</p>
+                        </div>
+                        <div class="feature">
+                            <h3>Fertilizer Analysis</h3>
+                            <p>Precise fertilizer recommendations based on soil composition.</p>
+                        </div>
+                        <div class="feature">
+                            <h3>Soil Analysis</h3>
+                            <p>Comprehensive soil parameter analysis and interpretation.</p>
+                        </div>
+                        <div class="feature">
+                            <h3>Real-time Data</h3>
+                            <p>Access to real-time agricultural data and insights.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h2>Our Technology</h2>
+                    <p>We leverage state-of-the-art machine learning algorithms and data analytics to provide accurate and reliable recommendations. Our platform processes multiple parameters including:</p>
+                    <ul class="tech-list">
+                        <li>Soil composition and type</li>
+                        <li>Temperature and humidity levels</li>
+                        <li>Moisture content</li>
+                        <li>NPK (Nitrogen, Phosphorus, Potassium) values</li>
+                    </ul>
+                </div>
+
+                <div class="contact-section">
+                    <h2>Contact Us</h2>
+                    <p>Have questions or suggestions? We'd love to hear from you!</p>
+                    <div class="contact-info">
+                        <p>Email: tue.nguyenpc0401@hcmut.edu.vn</p>
+                        <p>Phone: +84 767 520 425</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

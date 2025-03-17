@@ -1,0 +1,94 @@
+templates/real_data.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Data - idozii</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles3.css') }}">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">idozii</div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('real_data') }}" class="active">Real Data</a></li>
+                    <li><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('user') }}">User</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="background">
+        <div class="container">
+            <h1>Real Dataset</h1>
+            
+            {% if error %}
+                <div class="error-message">{{ error }}</div>
+            {% else %}
+                <div class="data-controls">
+                    <input type="text" id="searchInput" class="search-box" placeholder="Search in data...">
+                    <select id="columnFilter" class="filter-dropdown">
+                        <option value="">Filter by column...</option>
+                    </select>
+                </div>
+                <div class="data-table">
+                    {{ tables[0]|safe }}
+                </div>
+                <div class="pagination">
+                    <a href="#" class="active">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">Next</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Simple table search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const table = document.querySelector('.data-table table');
+            const columnFilter = document.getElementById('columnFilter');
+            
+            // Add column names to filter dropdown
+            if (table) {
+                const headers = table.querySelectorAll('thead th');
+                headers.forEach(header => {
+                    const option = document.createElement('option');
+                    option.value = header.textContent;
+                    option.textContent = header.textContent;
+                    columnFilter.appendChild(option);
+                });
+            
+                // Search functionality
+                searchInput.addEventListener('keyup', function() {
+                    const searchValue = this.value.toLowerCase();
+                    const column = columnFilter.value;
+                    const columnIndex = [...headers].findIndex(h => h.textContent === column);
+                    
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        if (!column) {
+                            // Search all columns
+                            const textContent = row.textContent.toLowerCase();
+                            row.style.display = textContent.includes(searchValue) ? '' : 'none';
+                        } else {
+                            // Search specific column
+                            const cell = row.querySelectorAll('td')[columnIndex];
+                            if (cell) {
+                                const textContent = cell.textContent.toLowerCase();
+                                row.style.display = textContent.includes(searchValue) ? '' : 'none';
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

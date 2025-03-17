@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Information - Agriculture</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles4.css') }}">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">AGRICULTURE</div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('real_data') }}">Real Data</a></li>
+                    <li><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('user') }}">User</a></li>
+                    <li><a href="{{ url_for('select_algorithm') }}">Models</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="background">
+        <div class="container">
+            <h1>Model Information</h1>
+            
+            <div class="model-list">
+                <h2>Available Models</h2>
+                <div class="model-grid">
+                    {% for model in models %}
+                    <div class="model-card {% if model.is_current %}active-model{% endif %}">
+                        <h3>{{ model.name }}</h3>
+                        <p>Model Code: {{ model.code }}</p>
+                        {% if model.is_current %}
+                        <span class="current-badge">Currently Selected</span>
+                        {% else %}
+                        <a href="{{ url_for('select_algorithm') }}" class="select-btn">Select this model</a>
+                        {% endif %}
+                        <img src="{{ url_for('static', filename='figures/confusion_matrices_' + model.code + '.png') }}" 
+                             alt="Confusion matrix for {{ model.name }}" class="matrix-img">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="comparison">
+                <h2>Model Comparison</h2>
+                <p>This chart shows the accuracy comparison between different algorithms:</p>
+                <img src="{{ url_for('static', filename='figures/algorithm_comparison.png') }}" 
+                     alt="Algorithm comparison chart" class="comparison-img">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
