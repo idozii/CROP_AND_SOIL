@@ -1,0 +1,120 @@
+_AND_SOIL/templates/recommendations.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations - idozii</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles5.css') }}">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">idozii</div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('real_data') }}">Real Data</a></li>
+                    <li><a href="{{ url_for('recommendations') }}" class="active">Recommendations</a></li>
+                    <li><a href="{{ url_for('select_algorithm') }}">Models</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('user') }}">User</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="background">
+        <div class="container">
+            <h1>Your Personalized Recommendations</h1>
+            
+            {% if error %}
+                <div class="error-message">
+                    <h3>Error:</h3>
+                    <p>{{ error }}</p>
+                    <p>Please go back and try again with different inputs.</p>
+                    <a href="{{ url_for('user') }}" class="btn">Back to Analysis Form</a>
+                </div>
+            {% else %}
+                <div class="recommendation-results">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h2>🌱 Recommended Crop</h2>
+                            <span class="algorithm-badge">{{ algorithm_name }}</span>
+                        </div>
+                        <div class="result-content">
+                            <div class="prediction">
+                                <h3>{{ crop_prediction }}</h3>
+                            </div>
+                            <p>Based on your soil conditions, this crop is recommended for optimal yield.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h2>🧪 Recommended Fertilizer</h2>
+                            <span class="algorithm-badge">{{ algorithm_name }}</span>
+                        </div>
+                        <div class="result-content">
+                            <div class="prediction">
+                                <h3>{{ fertilizer_prediction }}</h3>
+                            </div>
+                            <p>This fertilizer is ideal for your soil composition and will help maximize growth.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="input-summary">
+                        <h2>Your Soil Analysis</h2>
+                        <div class="input-grid">
+                            <div class="input-item">
+                                <span class="input-label">Soil Type:</span>
+                                <span class="input-value">{{ soil_type }}</span>
+                            </div>
+                            <div class="input-item">
+                                <span class="input-label">Temperature:</span>
+                                <span class="input-value">{{ temperature }}</span>
+                            </div>
+                            <div class="input-item">
+                                <span class="input-label">Humidity:</span>
+                                <span class="input-value">{{ humidity }}</span>
+                            </div>
+                            <div class="input-item">
+                                <span class="input-label">Moisture:</span>
+                                <span class="input-value">{{ moisture }}</span>
+                            </div>
+                            <div class="input-item">
+                                <span class="input-label">Nitrogen:</span>
+                                <span class="input-value">{{ nitrogen }}</span>
+                            </div>
+                            <div class="input-item">
+                                <span class="input-label">Potassium:</span>
+                                <span class="input-value">{{ potassium }}</span>
+                            </div>
+                            <div class="input-item">
+                                <span class="input-label">Phosphorus:</span>
+                                <span class="input-value">{{ phosphorus }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="{{ url_for('user') }}" class="btn">New Analysis</a>
+                        <a href="{{ url_for('select_algorithm') }}" class="btn secondary-btn">Try Different Model</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Animated entrance for prediction cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.result-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('visible');
+                }, 300 * (index + 1));
+            });
+        });
+    </script>
+</body>
+</html>

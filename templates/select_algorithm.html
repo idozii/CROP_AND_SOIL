@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Algorithm - Agriculture</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles4.css') }}">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">AGRICULTURE</div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('real_data') }}">Real Data</a></li>
+                    <li><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('user') }}">User</a></li>
+                    <li><a href="{{ url_for('select_algorithm') }}" class="active">Models</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="background">
+        <div class="container">
+            <h1>Select Prediction Algorithm</h1>
+            
+            {% if message %}
+            <div class="success-message">
+                {{ message }}
+            </div>
+            {% endif %}
+            
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <p>Select which machine learning algorithm to use for crop and fertilizer predictions.</p>
+            
+            <form action="{{ url_for('select_algorithm') }}" method="post" class="analysis-form">
+                <div class="form-group">
+                    <label for="algorithm">Algorithm:</label>
+                    <select id="algorithm" name="algorithm" required>
+                        {% for code, name in algorithms.items() %}
+                        <option value="{{ code }}" {% if code == current %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Apply Algorithm</button>
+            </form>
+            
+            <div class="algo-info">
+                <h3>Currently Selected: {{ algorithms[current] }}</h3>
+                <p>Each algorithm has different strengths:</p>
+                <ul>
+                    <li><strong>Random Forest</strong>: Robust against overfitting, handles non-linearity well</li>
+                    <li><strong>Gradient Boosting</strong>: High accuracy, handles imbalanced data well</li>
+                    <li><strong>Support Vector Machine</strong>: Works well with clear margin of separation</li>
+                    <li><strong>K-Nearest Neighbors</strong>: Simple, intuitive classification approach</li>
+                    <li><strong>Neural Network</strong>: Handles complex patterns, deep learning capability</li>
+                    <li><strong>Logistic Regression</strong>: Fast, interpretable model with linear boundaries</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
