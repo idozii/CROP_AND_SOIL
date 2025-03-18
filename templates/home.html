@@ -31,20 +31,59 @@
             font-style: italic;
         }
         
-        .login-form {
+        .auth-container {
             background: #f8f9fa;
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
         
-        .login-form h2 {
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: #f1f1f1;
+            color: #2c3e50;
+        }
+        
+        .form-container {
+            position: relative;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .auth-form h2 {
             margin-top: 0;
             color: #2c3e50;
             margin-bottom: 20px;
         }
         
-        .login-form label {
+        .auth-form label {
             display: block;
             margin-bottom: 8px;
             text-align: left;
@@ -52,7 +91,7 @@
             color: #2c3e50;
         }
         
-        .login-form input {
+        .auth-form input {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
@@ -61,10 +100,9 @@
             font-size: 16px;
         }
         
-        .login-form button {
+        .auth-form button {
             background: #4CAF50;
             color: white;
-            border: none;
             padding: 12px 20px;
             width: 100%;
             border-radius: 4px;
@@ -72,9 +110,10 @@
             font-size: 16px;
             font-weight: 500;
             transition: background 0.3s ease;
+            border: none;
         }
         
-        .login-form button:hover {
+        .auth-form button:hover {
             background: #45a049;
         }
         
@@ -83,6 +122,57 @@
             font-size: 0.9rem;
             color: #6c757d;
         }
+        
+        .form-info {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .switch-form-link {
+            color: #4CAF50;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .password-requirements {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: left;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
+
+        .password-field {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .password-field input {
+            margin-bottom: 0;  
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            user-select: none;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+        
+        .password-toggle:hover {
+            color: #4CAF50;
+        }
+
     </style>
 </head>
 <body>
@@ -90,22 +180,118 @@
         <div class="landing-container">
             <div class="landing-logo">idozii</div>
             <p class="landing-tagline">Your one-stop solution for crop and fertilizer recommendations</p>
-            
-            <div class="login-form">
-                <h2>Sign In</h2>
-                <form action="{{ url_for('home') }}" method="post">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+            <!-- Inside the landing-container, before the auth-container -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="auth-container">
+                <div class="tab-container">
+                    <div class="tab active" id="login-tab">Sign In</div>
+                    <div class="tab" id="signup-tab">Sign Up</div>
+                </div>
+                
+                <div class="form-container">
+                    <form action="{{ url_for('home') }}" method="post" class="auth-form active" id="login-form">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" name="email" required placeholder="Enter your email">
+                        
+                        <label for="login-password">Password</label>
+                        <div class="password-field">
+                            <input type="password" id="login-password" name="password" required placeholder="Enter your password">
+                            <span class="password-toggle" onclick="togglePasswordVisibility('login-password')">👁️</span>
+                        </div>
+                        
+                        <button type="submit">Sign In</button>
+                        
+                        <p class="form-info">Don't have an account? <span class="switch-form-link" id="show-signup">Create one</span></p>
+                    </form>
                     
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password">
-                    
-                    <button type="submit">Login</button>
-                </form>
+                    <form action="{{ url_for('register') }}" method="post" class="auth-form" id="signup-form">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" name="name" required placeholder="Enter your full name">
+                        
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" name="email" required placeholder="Enter your email">
+                        
+                        <label for="signup-password">Password</label>
+                        <div class="password-field">
+                            <input type="password" id="signup-password" name="password" required placeholder="Create a password">
+                            <span class="password-toggle" onclick="togglePasswordVisibility('signup-password')">👁️</span>
+                        </div>
+                        <p class="password-requirements">Password should be at least 8 characters and include uppercase, lowercase, number, and special character.</p>
+                        
+                        <label for="signup-confirm">Confirm Password</label>
+                        <div class="password-field">
+                            <input type="password" id="signup-confirm" name="confirm_password" required placeholder="Confirm your password">
+                            <span class="password-toggle" onclick="togglePasswordVisibility('signup-confirm')">👁️</span>
+                        </div>
+                        
+                        <button type="submit">Sign Up</button>
+                        
+                        <p class="form-info">Already have an account? <span class="switch-form-link" id="show-login">Sign in</span></p>
+                    </form>
+                </div>
             </div>
             
             <p class="footer-text">Agriculture & Soil Analytics System</p>
         </div>
     </div>
+    
+    <script>
+        function togglePasswordVisibility(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginTab = document.getElementById('login-tab');
+            const signupTab = document.getElementById('signup-tab');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const showSignup = document.getElementById('show-signup');
+            const showLogin = document.getElementById('show-login');
+            
+            function showSignupForm() {
+                loginTab.classList.remove('active');
+                signupTab.classList.add('active');
+                loginForm.classList.remove('active');
+                signupForm.classList.add('active');
+            }
+            
+            function showLoginForm() {
+                signupTab.classList.remove('active');
+                loginTab.classList.add('active');
+                signupForm.classList.remove('active');
+                loginForm.classList.add('active');
+            }
+            
+            loginTab.addEventListener('click', showLoginForm);
+            signupTab.addEventListener('click', showSignupForm);
+            showSignup.addEventListener('click', showSignupForm);
+            showLogin.addEventListener('click', showLoginForm);
+            
+            const signupButton = signupForm.querySelector('button');
+            const password = document.getElementById('signup-password');
+            const confirmPassword = document.getElementById('signup-confirm');
+            
+            signupForm.addEventListener('submit', function(event) {
+                if (password.value !== confirmPassword.value) {
+                    event.preventDefault();
+                    alert("Passwords don't match!");
+                    confirmPassword.focus();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -9,11 +9,13 @@ cycler==0.12.1
 debugpy==1.8.13
 filelock==3.17.0
 Flask==3.1.0
+Flask-SQLAlchemy==3.1.1
 flatbuffers==25.2.10
 fonttools==4.56.0
 fsspec==2025.3.0
 gast==0.6.0
 google-pasta==0.2.0
+greenlet==3.1.1
 grpcio==1.71.0
 h5py==3.13.0
 idna==3.10
@@ -63,6 +65,7 @@ scipy==1.15.2
 seaborn==0.13.2
 setuptools==76.0.0
 six==1.17.0
+SQLAlchemy==2.0.39
 sympy==1.13.1
 tensorboard==2.19.0
 tensorboard-data-server==0.7.2
