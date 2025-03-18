@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session, jsonify
+from flask import Flask, request, render_template, redirect, url_for, session, jsonify, flash
 import pandas as pd
 import joblib
 import os
@@ -6,9 +6,32 @@ import numpy as np
 import functools
 import traceback
 from main import recommend_crop_ml, recommend_fertilizer_ml, ensemble_predict, analyze_features_impact, get_similar_inputs
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+import re
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'agriculture_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __init__(self, name, email, password):
+        self.name = name
+        self.email = email
+        self.password = password
+
+with app.app_context():
+    db.create_all()
 
 crop_model = joblib.load('model/crop_model.pkl')
 fertilizer_model = joblib.load('model/fertilizer_model.pkl')
@@ -83,12 +106,100 @@ def login_required(view_func):
         return view_func(*args, **kwargs)
     return wrapped_view
 
+def validate_email(email):
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+def validate_password(password):
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters"
+    
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least one uppercase letter"
+    
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least one lowercase letter"
+    
+    if not re.search(r'[0-9]', password):
+        return False, "Password must contain at least one number"
+    
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False, "Password must contain at least one special character"
+    
+    return True, "Password is strong"
+
+@app.route('/register', methods=['POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        errors = []
+        
+        if not name:
+            errors.append("Name is required")
+        
+        if not email:
+            errors.append("Email is required")
+        elif not validate_email(email):
+            errors.append("Invalid email format")
+            
+        if not password:
+            errors.append("Password is required")
+        else:
+            is_valid, msg = validate_password(password)
+            if not is_valid:
+                errors.append(msg)
+                
+        if password != confirm_password:
+            errors.append("Passwords don't match")
+            
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            errors.append("Email already registered")
+            
+        if errors:
+            for error in errors:
+                flash(error, 'error')
+            return redirect(url_for('home'))
+            
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        
+        new_user = User(name=name, email=email, password=hashed_password)
+        db.session.add(new_user)
+
+        try:
+            db.session.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred. Please try again.', 'error')
+            print(f"Database error: {str(e)}")
+            return redirect(url_for('home'))
+    
+    return redirect(url_for('home'))
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
-        email = request.form.get('email')  
-        password = request.form.get('password')
-        session['user_email'] = email
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        
+        if not email or not password:
+            flash('Email and password are required', 'error')
+            return redirect(url_for('home'))
+        
+        user = User.query.filter_by(email=email).first()
+        if not user or not check_password_hash(user.password, password):
+            flash('Invalid email or password', 'error')
+            return redirect(url_for('home'))
+        
+        session['user_email'] = user.email
+        session['user_name'] = user.name
+        
         return redirect(url_for('user'))
         
     if 'user_email' in session:
