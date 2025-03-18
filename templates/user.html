@@ -3,8 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard - idozii</title>
+    <title>Dashboard - idozii</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
+    <style>
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+            border-left: 5px solid #28a745;
+        }
+        
+        .user-info {
+            background-color: #e2f0fd;
+            color: #0c5460;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .user-info::before {
+            content: "👤";
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .model-badge {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .submit-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .submit-btn:hover {
+            background: #45a049;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -12,55 +78,119 @@
             <div class="logo">idozii</div>
             <nav>
                 <ul>
-                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('user') }}" class="active">Dashboard</a></li>
                     <li><a href="{{ url_for('real_data') }}">Real Data</a></li>
                     <li><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
                     <li><a href="{{ url_for('select_algorithm') }}">Models</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
     <div class="background">
         <div class="container">
-            <h1>Soil Analysis Form</h1>
-            <form action="{{ url_for('predict') }}" method="POST" class="analysis-form">
-                <div class="form-group">
-                    <label for="soil_type">Soil Type:</label>
-                    <select id="soil_type" name="soil_type" required>
-                        <option value="">Select Soil Type</option>
-                        <option value="Clay">Clay</option>
-                        <option value="Sandy">Sandy</option>
-                        <option value="Loamy">Loamy</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="temperature">Temperature (°C):</label>
-                    <input type="number" step="0.1" id="temperature" name="temperature" required>
-                </div>
-                <div class="form-group">
-                    <label for="humidity">Humidity (%):</label>
-                    <input type="number" step="0.1" id="humidity" name="humidity" required>
-                </div>
-                <div class="form-group">
-                    <label for="moisture">Moisture (%):</label>
-                    <input type="number" step="0.1" id="moisture" name="moisture" required>
-                </div>
-                <div class="form-group">
-                    <label for="nitrogen">Nitrogen (mg/kg):</label>
-                    <input type="number" step="0.1" id="nitrogen" name="nitrogen" required>
-                </div>
-                <div class="form-group">
-                    <label for="potassium">Potassium (mg/kg):</label>
-                    <input type="number" step="0.1" id="potassium" name="potassium" required>
-                </div>
-                <div class="form-group">
-                    <label for="phosphorus">Phosphorus (mg/kg):</label>
-                    <input type="number" step="0.1" id="phosphorus" name="phosphorus" required>
-                </div>
-                <button type="submit" class="submit-btn">Get Recommendations</button>
-            </form>
+            <h1>Welcome to Your Dashboard</h1>
+            
+            {% if algorithm_message %}
+            <div class="success-message">
+                <strong>Success!</strong> {{ algorithm_message }} - You can now make predictions with the selected model.
+            </div>
+            {% endif %}
+            
+            <p class="user-info">Logged in as: {{ session['user_email'] }}</p>
+            
+            <div class="analysis-form">
+                <h2>Soil Analysis <span class="model-badge">{{ current_algorithm|default('Default', true) }} Model</span></h2>
+                <p>Enter your soil characteristics below to get crop and fertilizer recommendations.</p>
+                
+                <form action="{{ url_for('predict') }}" method="POST">
+                    <div class="form-group">
+                        <label for="crop_type">Crop Type (Optional):</label>
+                        <select id="crop_type" name="crop_type">
+                            <option value="">-- Select if known (optional) --</option>
+                            <option value="sugarcane">Sugarcane</option>
+                            <option value="maize">Maize</option>
+                            <option value="cotton">Cotton</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="barley">Barley</option>
+                            <option value="tobacco">Tobacco</option>
+                            <option value="paddy">Paddy</option>
+                            <option value="millets">Millets</option>
+                            <option value="oilseeds">Oil seeds</option>
+                            <option value="pulses">Pulses</option>
+                            <option value="groundnuts">Ground Nuts</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soil_type">Soil Type:</label>
+                        <select id="soil_type" name="soil_type" required>
+                            <option value="Clayey">Clayey</option>
+                            <option value="Loamy">Loamy</option>
+                            <option value="Sandy">Sandy</option>
+                            <option value="Black">Black</option>
+                            <option value="Red">Red</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="temperature">Temperature (°C):</label>
+                        <select id="temperature" name="temperature" required>
+                            <option value="Low">Low (below 15°C)</option>
+                            <option value="Medium">Medium (15-30°C)</option>
+                            <option value="High">High (above 30°C)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="humidity">Humidity (%):</label>
+                        <select id="humidity" name="humidity" required>
+                            <option value="Low">Low (below 40%)</option>
+                            <option value="Medium">Medium (40-70%)</option>
+                            <option value="High">High (above 70%)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="moisture">Moisture (%):</label>
+                        <select id="moisture" name="moisture" required>
+                            <option value="Low">Low (below 40%)</option>
+                            <option value="Moderate">Moderate (40-70%)</option>
+                            <option value="High">High (above 70%)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nitrogen">Nitrogen Level:</label>
+                        <select id="nitrogen" name="nitrogen" required>
+                            <option value="Low">Low (below 15 kg/ha)</option>
+                            <option value="Medium">Medium (15-30 kg/ha)</option>
+                            <option value="High">High (above 30 kg/ha)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="potassium">Potassium Level:</label>
+                        <select id="potassium" name="potassium" required>
+                            <option value="Low">Low (below 15 kg/ha)</option>
+                            <option value="Medium">Medium (15-30 kg/ha)</option>
+                            <option value="High">High (above 30 kg/ha)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phosphorus">Phosphorus Level:</label>
+                        <select id="phosphorus" name="phosphorus" required>
+                            <option value="Low">Low (below 15 kg/ha)</option>
+                            <option value="Medium">Medium (15-30 kg/ha)</option>
+                            <option value="High">High (above 30 kg/ha)</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Get Recommendations</button>
+                </form>
+            </div>
         </div>
     </div>
 </body>
