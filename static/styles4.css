@@ -388,3 +388,26 @@ p {
         gap: 1rem;
     }
 }
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 576px) {
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    .input-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .input-item {
+        padding: 15px;
+    }
+    
+    .input-summary {
+        padding: 15px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+    }
+}

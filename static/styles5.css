@@ -395,3 +395,91 @@ p {
         padding: 15px;
     }
 }
+
+/* For small devices */
+@media (max-width: 576px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .model-card {
+        padding: 20px;
+    }
+    
+    .model-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .model-card p {
+        font-size: 0.9rem;
+    }
+    
+    .model-card .current-badge {
+        font-size: 0.8rem;
+    }
+    
+    .model-card .select-btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .comparison p {
+        font-size: 0.9rem;
+    }
+}
+
+/* For medium devices */
+@media (max-width: 992px) {
+    .container {
+        padding: 25px;
+    }
+    
+    .model-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .model-card p {
+        font-size: 1rem;
+    }
+    
+    .model-card .current-badge {
+        font-size: 0.9rem;
+    }
+    
+    .model-card .select-btn {
+        padding: 8px 15px;
+        font-size: 1rem;
+    }
+    
+    .comparison p {
+        font-size: 1rem;
+    }
+}
+
+/* For large devices */
+@media (min-width: 1200px) {
+    .container {
+        padding: 30px;
+    }
+    
+    .model-card h3 {
+        font-size: 1.4rem;
+    }
+    
+    .model-card p {
+        font-size: 1.1rem;
+    }
+    
+    .model-card .current-badge {
+        font-size: 1rem;
+    }
+    
+    .model-card .select-btn {
+        padding: 10px 20px;
+        font-size: 1.1rem;
+    }
+    
+    .comparison p {
+        font-size: 1.1rem;
+    }
+}
