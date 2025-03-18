@@ -4,38 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - idozii</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles1.css') }}">
+    <style>
+        .landing-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .landing-logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .landing-tagline {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+        
+        .login-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .login-form h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .login-form label {
+            display: block;
+            margin-bottom: 8px;
+            text-align: left;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        .login-form button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .login-form button:hover {
+            background: #45a049;
+        }
+        
+        .footer-text {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="navbar">
-            <div class="logo">idozii</div>
-            <nav>
-                <ul>
-                    <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
-                    <li><a href="{{ url_for('real_data') }}">Real Data</a></li>
-                    <li><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
-                    <li><a href="{{ url_for('select_algorithm') }}">Models</a></li>
-                    <li><a href="{{ url_for('about') }}">About</a></li>
-                    <li><a href="{{ url_for('user') }}">User</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-    <div class="background">
-        <div class="container">
-            <h1>Welcome to Agriculture</h1>
-            <p class="tagline">Your one-stop solution for crop and fertilizer recommendations.</p>
+    <div class="background" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+        <div class="landing-container">
+            <div class="landing-logo">idozii</div>
+            <p class="landing-tagline">Your one-stop solution for crop and fertilizer recommendations</p>
+            
             <div class="login-form">
-                <h2>User Login</h2>
-                <form action="{{ url_for('login') }}" method="post">
-                    <label for="email">Enter Your Email</label>
-                    <input type="email" id="email" name="email" required>
-                    <label for="password">Enter Your Password</label>
-                    <input type="password" id="password" name="password" required>
+                <h2>Sign In</h2>
+                <form action="{{ url_for('home') }}" method="post">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    
                     <button type="submit">Login</button>
                 </form>
             </div>
+            
+            <p class="footer-text">Agriculture & Soil Analytics System</p>
         </div>
     </div>
 </body>
