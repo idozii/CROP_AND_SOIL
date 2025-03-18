@@ -89,3 +89,20 @@ h1 {
 .submit-btn:hover {
     background: #45a049;
 }
+
+/*Responsive Styles*/
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .analysis-form input,
+    .analysis-form select {
+        padding: 6px;
+    }
+
+    .submit-btn {
+        padding: 10px 15px;
+    }
+}
+

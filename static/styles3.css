@@ -178,3 +178,15 @@ caption {
         width: 100%;
     }
 }
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 576px) {
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    .search-box, .filter-dropdown {
+        width: 100%;
+    }
+}
+
