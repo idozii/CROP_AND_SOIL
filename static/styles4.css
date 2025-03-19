@@ -348,66 +348,82 @@ p {
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
-    .model-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .matrix-img, .comparison-img {
-        max-width: 100%;
-        height: auto;
-    }
-    
-    .algo-info {
-        padding: 15px;
-    }
-    
-    .select-btn {
-        display: block;
-        text-align: center;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-    }
-    
-    .result-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .algorithm-badge {
-        margin-top: 10px;
-    }
-    
+@media screen and (max-width: 768px) {
     .navbar {
         padding: 1rem;
+        flex-direction: column;
+    }
+    
+    .navbar .logo {
+        margin-bottom: 1rem;
     }
     
     .navbar nav ul {
         gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .model-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .input-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 576px) {
-    .logo {
-        font-size: 1.2rem;
+/*For smaller screens*/
+@media screen and (max-width: 600px) {
+    .container {
+        padding: 10px;
     }
-    
+
+    .model-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
     .input-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .input-item {
-        padding: 15px;
-    }
-    
-    .input-summary {
-        padding: 15px;
-    }
-    
-    .btn {
-        padding: 10px 20px;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
 }
+
+/*For smaller screens*/
+@media screen and (max-width: 400px) {
+    .container {
+        padding: 10px;
+    }
+
+    .model-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .input-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+/*For extra small screens*/
+@media screen and (max-width: 320px) {
+    .navbar nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+
+    .model-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .input-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
