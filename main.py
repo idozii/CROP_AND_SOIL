@@ -12,6 +12,9 @@ import joblib
 import argparse
 import os
 
+# Get the directory where this script is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def train_models(algorithm='rf'):
     algorithms = {
         'rf': ('Random Forest', RandomForestClassifier(n_estimators=100, random_state=42)),

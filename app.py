@@ -11,9 +11,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from datetime import datetime
 
+# Get the directory where this script is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
-app.secret_key = 'agriculture_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.secret_key = os.environ.get('SECRET_KEY', 'agriculture_secret_key')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "instance", "users.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -33,8 +36,8 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-crop_model = joblib.load('model/crop_model.pkl')
-fertilizer_model = joblib.load('model/fertilizer_model.pkl')
+crop_model = joblib.load(os.path.join(BASE_DIR, 'model', 'crop_model.pkl'))
+fertilizer_model = joblib.load(os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'))
 current_algorithm = 'rf' 
 
 def preprocess_input(soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus):    
@@ -234,7 +237,8 @@ def user():
 @login_required
 def real_data():
     try:
-        data = pd.read_csv('data/data.csv')
+        data_path = os.path.join(BASE_DIR, 'data', 'data.csv')
+        data = pd.read_csv(data_path)
         data_html = data.to_html(
             classes='table table-striped table-hover',
             index=False, 
@@ -278,8 +282,10 @@ def select_algorithm():
                 if algorithm == 'ensemble':
                     current_algorithm = algorithm
                 else:
-                    crop_model = joblib.load(f'model/crop_model_{algorithm}.pkl')
-                    fertilizer_model = joblib.load(f'model/fertilizer_model_{algorithm}.pkl')
+                    crop_model_path = os.path.join(BASE_DIR, 'model', f'crop_model_{algorithm}.pkl')
+                    fert_model_path = os.path.join(BASE_DIR, 'model', f'fertilizer_model_{algorithm}.pkl')
+                    crop_model = joblib.load(crop_model_path)
+                    fertilizer_model = joblib.load(fert_model_path)
                     current_algorithm = algorithm
                 session['algorithm_message'] = f"Successfully loaded {available_algorithms[algorithm]} models"
                 return redirect(url_for('user'))
@@ -429,8 +435,8 @@ def model_info():
     
     models = []
     for code, name in algorithms.items():
-        crop_path = f'model/crop_model_{code}.pkl'
-        fert_path = f'model/fertilizer_model_{code}.pkl'
+        crop_path = os.path.join(BASE_DIR, 'model', f'crop_model_{code}.pkl')
+        fert_path = os.path.join(BASE_DIR, 'model', f'fertilizer_model_{code}.pkl')
         
         if os.path.exists(crop_path) and os.path.exists(fert_path):
             models.append({
