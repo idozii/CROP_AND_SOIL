@@ -1,297 +1,167 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - idozii</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles1.css') }}">
-    <style>
-        .landing-container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        
-        .landing-logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-        }
-        
-        .landing-tagline {
-            color: #2c3e50;
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            font-style: italic;
-        }
-        
-        .auth-container {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .tab-container {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-            font-weight: 500;
-            color: #6c757d;
-            transition: all 0.3s ease;
-        }
-        
-        .tab.active {
-            color: #4CAF50;
-            border-bottom: 2px solid #4CAF50;
-        }
-        
-        .tab:hover:not(.active) {
-            background-color: #f1f1f1;
-            color: #2c3e50;
-        }
-        
-        .form-container {
-            position: relative;
-        }
-        
-        .auth-form {
-            display: none;
-        }
-        
-        .auth-form.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .auth-form h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        
-        .auth-form label {
-            display: block;
-            margin-bottom: 8px;
-            text-align: left;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-        
-        .auth-form input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            font-size: 16px;
-        }
-        
-        .auth-form button {
-            background: #4CAF50;
-            color: white;
-            padding: 12px 20px;
-            width: 100%;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background 0.3s ease;
-            border: none;
-        }
-        
-        .auth-form button:hover {
-            background: #45a049;
-        }
-        
-        .footer-text {
-            margin-top: 25px;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        
-        .form-info {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        
-        .switch-form-link {
-            color: #4CAF50;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .password-requirements {
-            font-size: 0.8rem;
-            color: #6c757d;
-            text-align: left;
-            margin-top: -15px;
-            margin-bottom: 15px;
-        }
+{% extends "base.html" %}
 
-        .password-field {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        
-        .password-field input {
-            margin-bottom: 0;  
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #6c757d;
-            user-select: none;
-            font-size: 1.2rem;
-            z-index: 10;
-        }
-        
-        .password-toggle:hover {
-            color: #4CAF50;
-        }
+{% block title %}Home - AI Crop Advisor{% endblock %}
 
-    </style>
-</head>
-<body>
-    <div class="background" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-        <div class="landing-container">
-            <div class="landing-logo">idozii</div>
-            <p class="landing-tagline">Your one-stop solution for crop and fertilizer recommendations</p>
-            <!-- Inside the landing-container, before the auth-container -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-success fw-bold mb-3">
+                <i class="bi bi-flower1"></i> AI Crop & Fertilizer Advisor
+            </h1>
+            <p class="lead text-muted">
+                Get intelligent crop and fertilizer recommendations based on your soil conditions using advanced machine learning
+            </p>
+        </div>
+
+        <div class="row">
+            <!-- Login Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white text-center">
+                        <h4><i class="bi bi-box-arrow-in-right"></i> Login</h4>
                     </div>
-                {% endfor %}
-            {% endif %}
-            {% endwith %}
-            <div class="auth-container">
-                <div class="tab-container">
-                    <div class="tab active" id="login-tab">Sign In</div>
-                    <div class="tab" id="signup-tab">Sign Up</div>
-                </div>
-                
-                <div class="form-container">
-                    <form action="{{ url_for('home') }}" method="post" class="auth-form active" id="login-form">
-                        <label for="login-email">Email Address</label>
-                        <input type="email" id="login-email" name="email" required placeholder="Enter your email">
-                        
-                        <label for="login-password">Password</label>
-                        <div class="password-field">
-                            <input type="password" id="login-password" name="password" required placeholder="Enter your password">
-                            <span class="password-toggle" onclick="togglePasswordVisibility('login-password')">👁️</span>
-                        </div>
-                        
-                        <button type="submit">Sign In</button>
-                        
-                        <p class="form-info">Don't have an account? <span class="switch-form-link" id="show-signup">Create one</span></p>
-                    </form>
-                    
-                    <form action="{{ url_for('register') }}" method="post" class="auth-form" id="signup-form">
-                        <label for="signup-name">Full Name</label>
-                        <input type="text" id="signup-name" name="name" required placeholder="Enter your full name">
-                        
-                        <label for="signup-email">Email Address</label>
-                        <input type="email" id="signup-email" name="email" required placeholder="Enter your email">
-                        
-                        <label for="signup-password">Password</label>
-                        <div class="password-field">
-                            <input type="password" id="signup-password" name="password" required placeholder="Create a password">
-                            <span class="password-toggle" onclick="togglePasswordVisibility('signup-password')">👁️</span>
-                        </div>
-                        <p class="password-requirements">Password should be at least 8 characters and include uppercase, lowercase, number, and special character.</p>
-                        
-                        <label for="signup-confirm">Confirm Password</label>
-                        <div class="password-field">
-                            <input type="password" id="signup-confirm" name="confirm_password" required placeholder="Confirm your password">
-                            <span class="password-toggle" onclick="togglePasswordVisibility('signup-confirm')">👁️</span>
-                        </div>
-                        
-                        <button type="submit">Sign Up</button>
-                        
-                        <p class="form-info">Already have an account? <span class="switch-form-link" id="show-login">Sign in</span></p>
-                    </form>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('home') }}" id="loginForm">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" onclick="showLoading('loginForm')">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </button>
+                            <div class="loading text-center mt-3">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-            
-            <p class="footer-text">Agriculture & Soil Analytics System</p>
+
+            <!-- Register Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4><i class="bi bi-person-plus"></i> Register</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reg_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="reg_email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reg_password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="reg_password" name="password" required>
+                                <div class="form-text">At least 8 characters with uppercase, lowercase, and number</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" onclick="showLoading('registerForm')">
+                                <i class="bi bi-person-plus"></i> Register
+                            </button>
+                            <div class="loading text-center mt-3">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">Why Choose Our AI Advisor?</h3>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-cpu display-6 text-success mb-3"></i>
+                        <h5>AI-Powered</h5>
+                        <p class="text-muted">Advanced machine learning algorithms trained on agricultural data</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-speedometer display-6 text-primary mb-3"></i>
+                        <h5>Fast Results</h5>
+                        <p class="text-muted">Get instant recommendations for optimal crop and fertilizer selection</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-graph-up display-6 text-warning mb-3"></i>
+                        <h5>Data-Driven</h5>
+                        <p class="text-muted">Recommendations based on soil analysis and environmental factors</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        function togglePasswordVisibility(inputId) {
-            const passwordInput = document.getElementById(inputId);
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-            } else {
-                passwordInput.type = "password";
-            }
-        }
+</div>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginTab = document.getElementById('login-tab');
-            const signupTab = document.getElementById('signup-tab');
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-            const showSignup = document.getElementById('show-signup');
-            const showLogin = document.getElementById('show-login');
-            
-            function showSignupForm() {
-                loginTab.classList.remove('active');
-                signupTab.classList.add('active');
-                loginForm.classList.remove('active');
-                signupForm.classList.add('active');
-            }
-            
-            function showLoginForm() {
-                signupTab.classList.remove('active');
-                loginTab.classList.add('active');
-                signupForm.classList.remove('active');
-                loginForm.classList.add('active');
-            }
-            
-            loginTab.addEventListener('click', showLoginForm);
-            signupTab.addEventListener('click', showSignupForm);
-            showSignup.addEventListener('click', showSignupForm);
-            showLogin.addEventListener('click', showLoginForm);
-            
-            const signupButton = signupForm.querySelector('button');
-            const password = document.getElementById('signup-password');
-            const confirmPassword = document.getElementById('signup-confirm');
-            
-            signupForm.addEventListener('submit', function(event) {
-                if (password.value !== confirmPassword.value) {
-                    event.preventDefault();
-                    alert("Passwords don't match!");
-                    confirmPassword.focus();
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+<script>
+// Password validation
+document.getElementById('reg_password').addEventListener('input', function() {
+    const password = this.value;
+    const confirmPassword = document.getElementById('confirm_password');
+    const button = document.querySelector('#registerForm button[type="submit"]');
+    
+    // Basic validation feedback
+    if (password.length >= 8 && 
+        /[A-Z]/.test(password) && 
+        /[a-z]/.test(password) && 
+        /[0-9]/.test(password)) {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    } else {
+        this.classList.remove('is-valid');
+        this.classList.add('is-invalid');
+    }
+    
+    // Check password match
+    if (confirmPassword.value && confirmPassword.value !== password) {
+        confirmPassword.classList.add('is-invalid');
+        button.disabled = true;
+    } else if (confirmPassword.value === password && password.length > 0) {
+        confirmPassword.classList.remove('is-invalid');
+        confirmPassword.classList.add('is-valid');
+        button.disabled = false;
+    }
+});
+
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('reg_password').value;
+    const button = document.querySelector('#registerForm button[type="submit"]');
+    
+    if (this.value !== password) {
+        this.classList.add('is-invalid');
+        button.disabled = true;
+    } else {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+        button.disabled = false;
+    }
+});
+</script>
+{% endblock %}

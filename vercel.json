@@ -2,22 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "./index.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "50mb"
-      }
+      "src": "app_optimized.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "app_optimized.py"
     }
   ],
-  "functions": {
-    "index.py": {
-      "memory": 1024
-    }
+  "env": {
+    "FLASK_ENV": "production"
   }
 }

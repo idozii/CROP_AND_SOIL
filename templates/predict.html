@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Predict - AI Crop Advisor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white text-center">
+                <h3 class="mb-0">
+                    <i class="bi bi-search"></i> Get Crop & Fertilizer Recommendations
+                </h3>
+                <p class="mb-0 mt-2">Enter your soil conditions below</p>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('predict') }}" id="predictForm">
+                    <div class="row">
+                        <!-- Soil Type -->
+                        <div class="col-md-6 mb-3">
+                            <label for="soil_type" class="form-label">
+                                <i class="bi bi-layers"></i> Soil Type
+                            </label>
+                            <select class="form-select" id="soil_type" name="soil_type" required>
+                                <option value="">Select soil type...</option>
+                                <option value="Sandy">Sandy</option>
+                                <option value="Loamy">Loamy</option>
+                                <option value="Black">Black</option>
+                                <option value="Red">Red</option>
+                                <option value="Clayey">Clayey</option>
+                            </select>
+                        </div>
+
+                        <!-- Temperature -->
+                        <div class="col-md-6 mb-3">
+                            <label for="temperature" class="form-label">
+                                <i class="bi bi-thermometer"></i> Temperature (°C)
+                            </label>
+                            <input type="number" class="form-control" id="temperature" name="temperature" 
+                                   min="10" max="50" step="0.1" placeholder="e.g., 28.5" required>
+                            <div class="form-text">Average temperature in your area</div>
+                        </div>
+
+                        <!-- Humidity -->
+                        <div class="col-md-6 mb-3">
+                            <label for="humidity" class="form-label">
+                                <i class="bi bi-droplet"></i> Humidity (%)
+                            </label>
+                            <input type="number" class="form-control" id="humidity" name="humidity" 
+                                   min="20" max="100" step="0.1" placeholder="e.g., 65.0" required>
+                            <div class="form-text">Relative humidity percentage</div>
+                        </div>
+
+                        <!-- Moisture -->
+                        <div class="col-md-6 mb-3">
+                            <label for="moisture" class="form-label">
+                                <i class="bi bi-moisture"></i> Soil Moisture (%)
+                            </label>
+                            <input type="number" class="form-control" id="moisture" name="moisture" 
+                                   min="10" max="80" step="0.1" placeholder="e.g., 45.0" required>
+                            <div class="form-text">Soil moisture content</div>
+                        </div>
+
+                        <!-- Nitrogen -->
+                        <div class="col-md-4 mb-3">
+                            <label for="nitrogen" class="form-label">
+                                <i class="bi bi-N-circle"></i> Nitrogen (mg/kg)
+                            </label>
+                            <input type="number" class="form-control" id="nitrogen" name="nitrogen" 
+                                   min="0" max="100" step="0.1" placeholder="e.g., 25.0" required>
+                        </div>
+
+                        <!-- Potassium -->
+                        <div class="col-md-4 mb-3">
+                            <label for="potassium" class="form-label">
+                                <i class="bi bi-K-circle"></i> Potassium (mg/kg)
+                            </label>
+                            <input type="number" class="form-control" id="potassium" name="potassium" 
+                                   min="0" max="100" step="0.1" placeholder="e.g., 20.0" required>
+                        </div>
+
+                        <!-- Phosphorus -->
+                        <div class="col-md-4 mb-3">
+                            <label for="phosphorus" class="form-label">
+                                <i class="bi bi-P-circle"></i> Phosphorus (mg/kg)
+                            </label>
+                            <input type="number" class="form-control" id="phosphorus" name="phosphorus" 
+                                   min="0" max="100" step="0.1" placeholder="e.g., 15.0" required>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success btn-lg px-5" onclick="showLoading('predictForm')">
+                            <i class="bi bi-cpu"></i> Get AI Recommendations
+                        </button>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="loading text-center mt-4">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Analyzing...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Analyzing your soil conditions...</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-question-circle"></i> Need Help with Soil Testing?
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>NPK Values Guide:</h6>
+                        <ul class="small">
+                            <li><strong>Low:</strong> 0-15 mg/kg</li>
+                            <li><strong>Medium:</strong> 15-30 mg/kg</li>
+                            <li><strong>High:</strong> 30+ mg/kg</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Environmental Conditions:</h6>
+                        <ul class="small">
+                            <li><strong>Temperature:</strong> Local average for season</li>
+                            <li><strong>Humidity:</strong> Relative humidity %</li>
+                            <li><strong>Moisture:</strong> Current soil moisture %</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Tip:</strong> For best results, use recent soil test data. Contact your local agricultural extension office for professional soil testing services.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add some input validation and user feedback
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('predictForm');
+    const inputs = form.querySelectorAll('input[type="number"]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            const min = parseFloat(this.min);
+            const max = parseFloat(this.max);
+            
+            if (value < min || value > max) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    });
+    
+    // Form validation before submit
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (input.classList.contains('is-invalid') || !input.value) {
+                isValid = false;
+                input.classList.add('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please check all input values are within the valid ranges.');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset - AI Crop Advisor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0">
+                    <i class="bi bi-table"></i> Agricultural Dataset
+                </h3>
+                <p class="mb-0 mt-2">Explore the data powering our AI recommendations</p>
+            </div>
+            <div class="card-body">
+                {% if data_info and not data_info.error %}
+                    <!-- Dataset Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-center bg-light">
+                                <div class="card-body">
+                                    <h5 class="text-primary">{{ data_info.total_rows }}</h5>
+                                    <small class="text-muted">Total Records</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center bg-light">
+                                <div class="card-body">
+                                    <h5 class="text-success">{{ data_info.sample_size }}</h5>
+                                    <small class="text-muted">Showing Sample</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center bg-light">
+                                <div class="card-body">
+                                    <h5 class="text-warning">{{ data_info.columns|length }}</h5>
+                                    <small class="text-muted">Data Features</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center bg-light">
+                                <div class="card-body">
+                                    <h5 class="text-info">AI</h5>
+                                    <small class="text-muted">Powered Analysis</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    {% for column in data_info.columns %}
+                                        <th>{{ column }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in data_info.data %}
+                                    <tr>
+                                        {% for column in data_info.columns %}
+                                            <td>{{ row[column] }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Data Insights -->
+                    <div class="alert alert-info mt-4">
+                        <h6><i class="bi bi-info-circle"></i> About This Dataset:</h6>
+                        <ul class="mb-0">
+                            <li>Contains real agricultural data from various soil and climate conditions</li>
+                            <li>Includes crop types, soil characteristics, and optimal fertilizer recommendations</li>
+                            <li>Used to train our machine learning models for accurate predictions</li>
+                            <li>Regularly updated with new agricultural research findings</li>
+                        </ul>
+                    </div>
+
+                {% else %}
+                    <!-- Error State -->
+                    <div class="alert alert-danger">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Unable to Load Dataset</h5>
+                        {% if data_info.error %}
+                            <p>Error: {{ data_info.error }}</p>
+                        {% else %}
+                            <p>No data available at this time. Please try again later.</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Navigation -->
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <a href="{{ url_for('predict') }}" class="btn btn-success ms-2">
+                        <i class="bi bi-search"></i> Make Prediction
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Features Explanation -->
+        {% if data_info and not data_info.error %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-book"></i> Understanding the Data Features
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Environmental Factors:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Temperature:</strong> Average temperature in Celsius</li>
+                            <li><strong>Humidity:</strong> Relative humidity percentage</li>
+                            <li><strong>Moisture:</strong> Soil moisture content percentage</li>
+                            <li><strong>Soil Type:</strong> Classification of soil composition</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Soil Nutrients (NPK):</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Nitrogen (N):</strong> Essential for leaf growth</li>
+                            <li><strong>Phosphorus (P):</strong> Important for root development</li>
+                            <li><strong>Potassium (K):</strong> Crucial for plant health</li>
+                            <li><strong>Values:</strong> Measured in mg/kg of soil</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Add search functionality to the table
+document.addEventListener('DOMContentLoaded', function() {
+    // Add search input if table exists
+    const table = document.querySelector('.table-responsive table');
+    if (table) {
+        const searchDiv = document.createElement('div');
+        searchDiv.className = 'mb-3';
+        searchDiv.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" id="tableSearch" placeholder="Search in table...">
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">Search across all columns to filter results</small>
+                </div>
+            </div>
+        `;
+        
+        table.parentNode.insertBefore(searchDiv, table);
+        
+        // Search functionality
+        document.getElementById('tableSearch').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

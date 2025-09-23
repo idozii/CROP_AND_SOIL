@@ -1,27 +1,41 @@
+"""
+Optimized Flask app for Vercel deployment
+Lightweight, fast, and production-ready
+"""
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify, flash
-import pandas as pd
-import joblib
 import os
-import numpy as np
-import functools
+import logging
 import traceback
-from main import recommend_crop_ml, recommend_fertilizer_ml, ensemble_predict, analyze_features_impact, get_similar_inputs
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-import re
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+import re
+
+# Import optimized ML functions
+from main_optimized import predict_crop, predict_fertilizer, get_data_sample
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Get the directory where this script is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Initialize Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'agriculture_secret_key')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "instance", "users.db")}'
+app.secret_key = os.environ.get('SECRET_KEY', 'agriculture_secret_key_2024')
+
+# Database configuration
+database_path = os.path.join(BASE_DIR, 'instance', 'users.db')
+os.makedirs(os.path.dirname(database_path), exist_ok=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{database_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Initialize database
 db = SQLAlchemy(app)
 
 class User(db.Model):
+    """User model for authentication"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -33,87 +47,27 @@ class User(db.Model):
         self.email = email
         self.password = password
 
+# Create tables
 with app.app_context():
     db.create_all()
 
-crop_model = joblib.load(os.path.join(BASE_DIR, 'model', 'crop_model.pkl'))
-fertilizer_model = joblib.load(os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'))
-current_algorithm = 'rf' 
-
-def preprocess_input(soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus):    
-    try:
-        temperature = float(temperature)
-        humidity = float(humidity)
-        moisture = float(moisture)
-        nitrogen = float(nitrogen)
-        potassium = float(potassium)
-        phosphorus = float(phosphorus)
-    except ValueError:
-        pass
-    
-    if isinstance(temperature, (int, float)):
-        if temperature > 30:
-            temperature = 'High'
-        elif 15 <= temperature <= 30:
-            temperature = 'Medium'
-        else:
-            temperature = 'Low'
-            
-    if isinstance(humidity, (int, float)):
-        if humidity > 70:
-            humidity = 'High'
-        elif 40 <= humidity <= 70:
-            humidity = 'Medium'
-        else:
-            humidity = 'Low'
-            
-    if isinstance(moisture, (int, float)):
-        if moisture > 70:
-            moisture = 'High'
-        elif 40 <= moisture <= 70:
-            moisture = 'Moderate'
-        else:
-            moisture = 'Low'
-            
-    if isinstance(nitrogen, (int, float)):
-        if nitrogen > 30:
-            nitrogen = 'High'
-        elif 15 <= nitrogen <= 30:
-            nitrogen = 'Medium'
-        else:
-            nitrogen = 'Low'
-            
-    if isinstance(potassium, (int, float)):
-        if potassium > 30:
-            potassium = 'High'
-        elif 15 <= potassium <= 30:
-            potassium = 'Medium'
-        else:
-            potassium = 'Low'
-            
-    if isinstance(phosphorus, (int, float)):
-        if phosphorus > 30:
-            phosphorus = 'High'
-        elif 15 <= phosphorus <= 30:
-            phosphorus = 'Medium'
-        else:
-            phosphorus = 'Low'
-            
-    return soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus
-
-def login_required(view_func):
-    @functools.wraps(view_func)
-    def wrapped_view(*args, **kwargs):
+# Utility functions
+def login_required(f):
+    """Decorator for login required routes"""
+    def decorated_function(*args, **kwargs):
         if 'user_email' not in session:
             return redirect(url_for('home'))
-        return view_func(*args, **kwargs)
-    return wrapped_view
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
 
-def validate_email(email):
+def validate_email(email: str) -> bool:
+    """Validate email format"""
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
-def validate_password(password):
+def validate_password(password: str) -> tuple:
+    """Validate password strength"""
     if len(password) < 8:
         return False, "Password must be at least 8 characters"
     
@@ -126,14 +80,107 @@ def validate_password(password):
     if not re.search(r'[0-9]', password):
         return False, "Password must contain at least one number"
     
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return False, "Password must contain at least one special character"
-    
     return True, "Password is strong"
+
+def preprocess_form_input(form_data: dict) -> dict:
+    """Preprocess form input for ML models"""
+    try:
+        # Map form values to model expected values
+        processed = {}
+        
+        # Handle soil type
+        processed['soil_type'] = form_data.get('soil_type', 'Sandy')
+        
+        # Handle categorical temperature
+        temp_val = form_data.get('temperature', '25')
+        try:
+            temp_num = float(temp_val)
+            if temp_num < 20:
+                processed['temperature'] = 'Low'
+            elif temp_num > 30:
+                processed['temperature'] = 'High'
+            else:
+                processed['temperature'] = 'Medium'
+        except:
+            processed['temperature'] = temp_val
+        
+        # Handle categorical humidity
+        humidity_val = form_data.get('humidity', '50')
+        try:
+            humidity_num = float(humidity_val)
+            if humidity_num < 40:
+                processed['humidity'] = 'Low'
+            elif humidity_num > 70:
+                processed['humidity'] = 'High'
+            else:
+                processed['humidity'] = 'Medium'
+        except:
+            processed['humidity'] = humidity_val
+        
+        # Handle categorical moisture
+        moisture_val = form_data.get('moisture', '40')
+        try:
+            moisture_num = float(moisture_val)
+            if moisture_num < 30:
+                processed['moisture'] = 'Low'
+            elif moisture_num > 60:
+                processed['moisture'] = 'High'
+            else:
+                processed['moisture'] = 'Moderate'
+        except:
+            processed['moisture'] = moisture_val
+        
+        # Handle NPK values
+        for nutrient in ['nitrogen', 'potassium', 'phosphorus']:
+            val = form_data.get(nutrient, '20')
+            try:
+                num_val = float(val)
+                if num_val < 15:
+                    processed[nutrient] = 'Low'
+                elif num_val > 30:
+                    processed[nutrient] = 'High'
+                else:
+                    processed[nutrient] = 'Medium'
+            except:
+                processed[nutrient] = val
+        
+        return processed
+        
+    except Exception as e:
+        logger.error(f"Error preprocessing input: {e}")
+        return form_data
+
+# Routes
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    """Home page with login/register"""
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        
+        if not email or not password:
+            flash('Email and password are required', 'error')
+            return redirect(url_for('home'))
+        
+        user = User.query.filter_by(email=email).first()
+        if not user or not check_password_hash(user.password, password):
+            flash('Invalid email or password', 'error')
+            return redirect(url_for('home'))
+        
+        session['user_email'] = user.email
+        session['user_name'] = user.name
+        
+        return redirect(url_for('dashboard'))
+        
+    if 'user_email' in session:
+        return redirect(url_for('dashboard'))
+        
+    return render_template('home.html')
 
 @app.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
+    """User registration"""
+    try:
         name = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
@@ -172,330 +219,153 @@ def register():
         
         new_user = User(name=name, email=email, password=hashed_password)
         db.session.add(new_user)
-
-        try:
-            db.session.commit()
-            flash('Registration successful! Please log in.', 'success')
-            return redirect(url_for('home'))
-        except Exception as e:
-            db.session.rollback()
-            flash('An error occurred. Please try again.', 'error')
-            print(f"Database error: {str(e)}")
-            return redirect(url_for('home'))
-    
-    return redirect(url_for('home'))
-
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '')
+        db.session.commit()
         
-        if not email or not password:
-            flash('Email and password are required', 'error')
-            return redirect(url_for('home'))
+        flash('Registration successful! Please log in.', 'success')
+        return redirect(url_for('home'))
         
-        user = User.query.filter_by(email=email).first()
-        if not user or not check_password_hash(user.password, password):
-            flash('Invalid email or password', 'error')
-            return redirect(url_for('home'))
-        
-        session['user_email'] = user.email
-        session['user_name'] = user.name
-        
-        return redirect(url_for('user'))
-        
-    if 'user_email' in session:
-        return redirect(url_for('user'))
-        
-    return render_template('home.html')
-
-@app.route('/login')
-def login():
-    return redirect(url_for('home'))
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Registration error: {e}")
+        flash('An error occurred. Please try again.', 'error')
+        return redirect(url_for('home'))
 
 @app.route('/logout')
 def logout():
-    session.pop('user_email', None)
+    """User logout"""
+    session.clear()
     return redirect(url_for('home'))
 
-@app.route('/user')
+@app.route('/dashboard')
 @login_required
-def user():
-    algorithm_message = None
-    if 'algorithm_message' in session:
-        algorithm_message = session['algorithm_message']
-        session.pop('algorithm_message', None)
-        
-    algorithm_name = get_algorithm_display_name(current_algorithm)
-    
-    return render_template('user.html', 
-                          algorithm_message=algorithm_message,
-                          current_algorithm=algorithm_name)
+def dashboard():
+    """Main dashboard"""
+    return render_template('dashboard.html', user_name=session.get('user_name'))
 
-@app.route('/real_data')
-@login_required
-def real_data():
-    try:
-        data_path = os.path.join(BASE_DIR, 'data', 'data.csv')
-        data = pd.read_csv(data_path)
-        data_html = data.to_html(
-            classes='table table-striped table-hover',
-            index=False, 
-            border=0,    
-            justify='left'
-        )
-        return render_template('real_data.html', tables=[data_html], titles=data.columns.values)
-    except Exception as e:
-        error_msg = f"Error loading data: {str(e)}"
-        return render_template('real_data.html', error=error_msg)
-
-@app.route('/recommendations')
-@login_required
-def recommendations():
-    return render_template('recommendations_landing.html')
-
-@app.route('/about')
-@login_required
-def about():
-    return render_template('about.html')
-
-@app.route('/select_algorithm', methods=['GET', 'POST'])
-@login_required
-def select_algorithm():
-    global crop_model, fertilizer_model, current_algorithm
-    
-    available_algorithms = {
-        'rf': 'Random Forest',
-        'gb': 'Gradient Boosting',
-        'svm': 'Support Vector Machine',
-        'knn': 'K-Nearest Neighbors',
-        'mlp': 'Neural Network',
-        'lr': 'Logistic Regression',
-        'ensemble': 'Ensemble (Voting)'
-    }
-    
-    if request.method == 'POST':
-        algorithm = request.form.get('algorithm')
-        if algorithm in available_algorithms:
-            try:
-                if algorithm == 'ensemble':
-                    current_algorithm = algorithm
-                else:
-                    crop_model_path = os.path.join(BASE_DIR, 'model', f'crop_model_{algorithm}.pkl')
-                    fert_model_path = os.path.join(BASE_DIR, 'model', f'fertilizer_model_{algorithm}.pkl')
-                    crop_model = joblib.load(crop_model_path)
-                    fertilizer_model = joblib.load(fert_model_path)
-                    current_algorithm = algorithm
-                session['algorithm_message'] = f"Successfully loaded {available_algorithms[algorithm]} models"
-                return redirect(url_for('user'))
-                
-            except Exception as e:
-                return render_template('select_algorithm.html', 
-                                      algorithms=available_algorithms,
-                                      current=current_algorithm,
-                                      error=f"Error loading model: {str(e)}")
-    
-    return render_template('select_algorithm.html', 
-                          algorithms=available_algorithms,
-                          current=current_algorithm)
-
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['GET', 'POST'])
 @login_required
 def predict():
+    """Crop and fertilizer prediction"""
+    if request.method == 'GET':
+        return render_template('predict.html')
+    
     try:
-        soil_type = request.form['soil_type']
-        temperature = request.form['temperature'] 
-        humidity = request.form['humidity']
-        moisture = request.form['moisture']
-        nitrogen = request.form['nitrogen']
-        potassium = request.form['potassium']
-        phosphorus = request.form['phosphorus']
-        crop_type = request.form.get('crop_type', '')
-        
-        original_values = {
-            'soil_type': soil_type,
-            'temperature': temperature,
-            'humidity': humidity,
-            'moisture': moisture,
-            'nitrogen': nitrogen,
-            'potassium': potassium,
-            'phosphorus': phosphorus,
-            'crop_type': crop_type
+        # Get form data
+        form_data = {
+            'soil_type': request.form.get('soil_type'),
+            'temperature': request.form.get('temperature'),
+            'humidity': request.form.get('humidity'),
+            'moisture': request.form.get('moisture'),
+            'nitrogen': request.form.get('nitrogen'),
+            'potassium': request.form.get('potassium'),
+            'phosphorus': request.form.get('phosphorus')
         }
         
-        soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus = preprocess_input(
-            soil_type, temperature, humidity, moisture, nitrogen, potassium, phosphorus
+        # Preprocess input
+        processed_data = preprocess_form_input(form_data)
+        
+        # Make predictions
+        crop_result = predict_crop(
+            processed_data['soil_type'],
+            processed_data['temperature'], 
+            processed_data['humidity'],
+            processed_data['moisture'],
+            processed_data['nitrogen'],
+            processed_data['potassium'],
+            processed_data['phosphorus']
         )
         
-        params = {
-            'soil_type': soil_type,
-            'temperature': temperature,
-            'humidity': humidity,
-            'moisture': moisture,
-            'nitrogen': nitrogen,
-            'potassium': potassium,
-            'phosphorus': phosphorus
-        }
+        fertilizer_result = predict_fertilizer(
+            processed_data['soil_type'],
+            processed_data['temperature'],
+            processed_data['humidity'], 
+            processed_data['moisture'],
+            processed_data['nitrogen'],
+            processed_data['potassium'],
+            processed_data['phosphorus']
+        )
         
-        if current_algorithm == 'ensemble':
-            result = ensemble_predict(**params)
-            crop_prediction = result['crop_prediction']
-            fertilizer_prediction = result['fertilizer_prediction']
-            crop_confidence = result['crop_confidence']
-            fertilizer_confidence = result['fertilizer_confidence']
-            crop_alternatives = result.get('crop_alternatives', [])
-            fertilizer_alternatives = result.get('fertilizer_alternatives', [])
-            models_used = result.get('models_used', [])
-            
-            impact_analysis = analyze_features_impact(**params)
-            similar_inputs = get_similar_inputs(**params, limit=5)
-            
-            return render_template('recommendations.html',
-                                 crop_prediction=crop_prediction,
-                                 fertilizer_prediction=fertilizer_prediction,
-                                 soil_type=original_values['soil_type'],
-                                 temperature=original_values['temperature'],
-                                 humidity=original_values['humidity'],
-                                 moisture=original_values['moisture'],
-                                 nitrogen=original_values['nitrogen'],
-                                 potassium=original_values['potassium'],
-                                 phosphorus=original_values['phosphorus'],
-                                 crop_type=original_values['crop_type'],
-                                 algorithm_name='Ensemble',
-                                 crop_confidence=crop_confidence,
-                                 fertilizer_confidence=fertilizer_confidence,
-                                 crop_alternatives=crop_alternatives,
-                                 fertilizer_alternatives=fertilizer_alternatives,
-                                 models_used=models_used,
-                                 impact_analysis=impact_analysis,
-                                 similar_inputs=similar_inputs)
-        else:
-            if crop_type and crop_type.strip():
-                crop_prediction = crop_type.capitalize()
-                crop_result = {"prediction": crop_prediction, "confidence": None, "top_features": None}
-                fert_result = recommend_fertilizer_ml(model=fertilizer_model, **params)
-                fertilizer_prediction = fert_result["prediction"]
-            else:
-                crop_result = recommend_crop_ml(model=crop_model, **params)
-                fert_result = recommend_fertilizer_ml(model=fertilizer_model, **params)
-                crop_prediction = crop_result["prediction"]
-                fertilizer_prediction = fert_result["prediction"]
-                
-            impact_analysis = analyze_features_impact(**params)
-            similar_inputs = get_similar_inputs(**params, limit=5)
-
-            return render_template('recommendations.html',
-                                 crop_prediction=crop_prediction,
-                                 fertilizer_prediction=fertilizer_prediction,
-                                 soil_type=original_values['soil_type'],
-                                 temperature=original_values['temperature'],
-                                 humidity=original_values['humidity'],
-                                 moisture=original_values['moisture'],
-                                 nitrogen=original_values['nitrogen'],
-                                 potassium=original_values['potassium'],
-                                 phosphorus=original_values['phosphorus'],
-                                 crop_type=original_values['crop_type'],
-                                 algorithm_name=get_algorithm_display_name(current_algorithm),
-                                 crop_confidence=crop_result.get("confidence"),
-                                 fertilizer_confidence=fert_result.get("confidence"),
-                                 crop_top_features=crop_result.get("top_features"),
-                                 fertilizer_top_features=fert_result.get("top_features"),
-                                 impact_analysis=impact_analysis,
-                                 similar_inputs=similar_inputs)
-
+        return render_template('results.html',
+                             crop_result=crop_result,
+                             fertilizer_result=fertilizer_result,
+                             input_data=form_data)
+        
     except Exception as e:
-        print(f"Error in prediction: {str(e)}")  
-        traceback.print_exc() 
-        return render_template('recommendations.html', error=str(e))
+        logger.error(f"Prediction error: {e}")
+        traceback.print_exc()
+        flash(f'Prediction error: {str(e)}', 'error')
+        return render_template('predict.html')
 
-def get_algorithm_display_name(algorithm_code):
-    algorithm_names = {
-        'rf': 'Random Forest',
-        'gb': 'Gradient Boosting',
-        'svm': 'Support Vector Machine',
-        'knn': 'K-Nearest Neighbors', 
-        'mlp': 'Neural Network',
-        'lr': 'Logistic Regression',
-        'ensemble': 'Ensemble (Voting)'
-    }
-    return algorithm_names.get(algorithm_code, algorithm_code.upper())
+@app.route('/data')
+@login_required  
+def view_data():
+    """View sample data"""
+    try:
+        data_info = get_data_sample(limit=100)
+        return render_template('data.html', data_info=data_info)
+    except Exception as e:
+        logger.error(f"Data view error: {e}")
+        flash(f'Error loading data: {str(e)}', 'error')
+        return render_template('data.html', data_info={'error': str(e)})
 
-@app.route('/model_info')
+@app.route('/api/predict', methods=['POST'])
 @login_required
-def model_info():
-    algorithms = {
-        'rf': 'Random Forest',
-        'gb': 'Gradient Boosting',
-        'svm': 'Support Vector Machine',
-        'knn': 'K-Nearest Neighbors',
-        'mlp': 'Neural Network',
-        'lr': 'Logistic Regression'
-    }
-    
-    models = []
-    for code, name in algorithms.items():
-        crop_path = os.path.join(BASE_DIR, 'model', f'crop_model_{code}.pkl')
-        fert_path = os.path.join(BASE_DIR, 'model', f'fertilizer_model_{code}.pkl')
+def api_predict():
+    """API endpoint for predictions"""
+    try:
+        data = request.get_json()
         
-        if os.path.exists(crop_path) and os.path.exists(fert_path):
-            models.append({
-                'code': code,
-                'name': name,
-                'is_current': code == current_algorithm
-            })
-    
-    return render_template('model_info.html', models=models)
+        crop_result = predict_crop(
+            data.get('soil_type'),
+            data.get('temperature'),
+            data.get('humidity'),
+            data.get('moisture'),
+            data.get('nitrogen'),
+            data.get('potassium'),
+            data.get('phosphorus')
+        )
+        
+        fertilizer_result = predict_fertilizer(
+            data.get('soil_type'),
+            data.get('temperature'),
+            data.get('humidity'),
+            data.get('moisture'),
+            data.get('nitrogen'),
+            data.get('potassium'),
+            data.get('phosphorus')
+        )
+        
+        return jsonify({
+            'crop': crop_result,
+            'fertilizer': fertilizer_result,
+            'status': 'success'
+        })
+        
+    except Exception as e:
+        logger.error(f"API prediction error: {e}")
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
 
-@app.route('/api/feature_impact')
-@login_required
-def api_feature_impact():
-    soil_type = request.args.get('soil_type', 'Sandy')
-    temperature = request.args.get('temperature', 'High')
-    humidity = request.args.get('humidity', 'Medium')
-    moisture = request.args.get('moisture', 'Moderate')
-    nitrogen = request.args.get('nitrogen', 'Medium')
-    potassium = request.args.get('potassium', 'High')
-    phosphorus = request.args.get('phosphorus', 'Low')
-    
-    params = {
-        'soil_type': soil_type,
-        'temperature': temperature,
-        'humidity': humidity,
-        'moisture': moisture,
-        'nitrogen': nitrogen,
-        'potassium': potassium,
-        'phosphorus': phosphorus
-    }
-    
-    impact_analysis = analyze_features_impact(**params)
-    return jsonify(impact_analysis)
+@app.route('/health')
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat()
+    })
 
-@app.route('/api/similar_inputs')
-@login_required
-def api_similar_inputs():
-    soil_type = request.args.get('soil_type', 'Sandy')
-    temperature = request.args.get('temperature', 'High')
-    humidity = request.args.get('humidity', 'Medium')
-    moisture = request.args.get('moisture', 'Moderate')
-    nitrogen = request.args.get('nitrogen', 'Medium')
-    potassium = request.args.get('potassium', 'High')
-    phosphorus = request.args.get('phosphorus', 'Low')
-    limit = int(request.args.get('limit', 5))
-    
-    params = {
-        'soil_type': soil_type,
-        'temperature': temperature,
-        'humidity': humidity,
-        'moisture': moisture,
-        'nitrogen': nitrogen,
-        'potassium': potassium,
-        'phosphorus': phosphorus,
-        'limit': limit
-    }
-    
-    similar_inputs = get_similar_inputs(**params)
-    return jsonify(similar_inputs)
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error.html', error="Page not found"), 404
 
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error(f"Internal error: {error}")
+    return render_template('error.html', error="Internal server error"), 500
+
+# For local development
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
