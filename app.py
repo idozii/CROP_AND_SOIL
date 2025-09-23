@@ -12,7 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 import re
 
 # Import optimized ML functions
-from main_optimized import predict_crop, predict_fertilizer, get_data_sample
+from main import predict_crop, predict_fertilizer, get_data_sample
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -365,6 +365,9 @@ def not_found(error):
 def internal_error(error):
     logger.error(f"Internal error: {error}")
     return render_template('error.html', error="Internal server error"), 500
+
+# Vercel serverless handler
+app_handler = app
 
 # For local development
 if __name__ == '__main__':
