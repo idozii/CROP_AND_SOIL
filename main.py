@@ -10,7 +10,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 _model_cache = {}
 
 def load_model(model_name):
-    """Load model with caching"""
     if model_name not in _model_cache:
         model_path = os.path.join(BASE_DIR, 'model', f'{model_name}.pkl')
         _model_cache[model_name] = joblib.load(model_path)
@@ -18,7 +17,6 @@ def load_model(model_name):
 
 def train_models():
     """Train crop and fertilizer models"""
-    print("Loading data...")
     data = pd.read_csv(os.path.join(BASE_DIR, 'data', 'data.csv'))
     
     print(f"Dataset size: {len(data)} records")
@@ -69,9 +67,8 @@ def train_models():
     joblib.dump(fert_model, os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'), compress=9)
     joblib.dump(soil_encoder, os.path.join(BASE_DIR, 'model', 'soil_encoder.pkl'), compress=9)
 
-    print(f"✅ Models saved successfully!")
-    print(f"📊 Crop model accuracy: {crop_acc:.2%}")
-    print(f"📊 Fertilizer model accuracy: {fert_acc:.2%}")
+    print(f"Crop model accuracy: {crop_acc:.2%}")
+    print(f"Fertilizer model accuracy: {fert_acc:.2%}")
 
 def predict_crop(soil_type, temperature, humidity, moisture,
                  nitrogen, potassium, phosphorus):
