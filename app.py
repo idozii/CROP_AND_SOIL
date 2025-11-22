@@ -215,7 +215,8 @@ def register():
                 flash(error, 'error')
             return redirect(url_for('home'))
             
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        # Use scrypt for faster hashing while maintaining security
+        hashed_password = generate_password_hash(password, method='scrypt:32768:8:1')
         
         new_user = User(name=name, email=email, password=hashed_password)
         db.session.add(new_user)
