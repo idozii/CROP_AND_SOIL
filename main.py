@@ -69,8 +69,9 @@ def train_models():
     joblib.dump(fert_model, os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'), compress=9)
     joblib.dump(soil_encoder, os.path.join(BASE_DIR, 'model', 'soil_encoder.pkl'), compress=9)
 
-    print(f"Crop model accuracy: {crop_acc:.2%}")
-    print(f"Fertilizer model accuracy: {fert_acc:.2%}")
+    print(f"✅ Models saved successfully!")
+    print(f"📊 Crop model accuracy: {crop_acc:.2%}")
+    print(f"📊 Fertilizer model accuracy: {fert_acc:.2%}")
 
 def predict_crop(soil_type, temperature, humidity, moisture,
                  nitrogen, potassium, phosphorus):
