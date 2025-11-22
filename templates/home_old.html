@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Home - AI Crop Advisor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-success fw-bold mb-3">
+                <i class="bi bi-flower1"></i> AI Crop & Fertilizer Advisor
+            </h1>
+            <p class="lead text-muted">
+                Get intelligent crop and fertilizer recommendations based on your soil conditions using advanced machine learning
+            </p>
+        </div>
+
+        <div class="row">
+            <!-- Login Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white text-center">
+                        <h4><i class="bi bi-box-arrow-in-right"></i> Login</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('home') }}" id="loginForm">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" onclick="showLoading('loginForm')">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </button>
+                            <div class="loading text-center mt-3">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4><i class="bi bi-person-plus"></i> Register</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reg_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="reg_email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reg_password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="reg_password" name="password" required>
+                                <div class="form-text">At least 8 characters with uppercase, lowercase, and number</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" onclick="showLoading('registerForm')">
+                                <i class="bi bi-person-plus"></i> Register
+                            </button>
+                            <div class="loading text-center mt-3">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">Why Choose Our AI Advisor?</h3>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-cpu display-6 text-success mb-3"></i>
+                        <h5>AI-Powered</h5>
+                        <p class="text-muted">Advanced machine learning algorithms trained on agricultural data</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-speedometer display-6 text-primary mb-3"></i>
+                        <h5>Fast Results</h5>
+                        <p class="text-muted">Get instant recommendations for optimal crop and fertilizer selection</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-graph-up display-6 text-warning mb-3"></i>
+                        <h5>Data-Driven</h5>
+                        <p class="text-muted">Recommendations based on soil analysis and environmental factors</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Password validation
+document.getElementById('reg_password').addEventListener('input', function() {
+    const password = this.value;
+    const confirmPassword = document.getElementById('confirm_password');
+    const button = document.querySelector('#registerForm button[type="submit"]');
+    
+    // Basic validation feedback
+    if (password.length >= 8 && 
+        /[A-Z]/.test(password) && 
+        /[a-z]/.test(password) && 
+        /[0-9]/.test(password)) {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    } else {
+        this.classList.remove('is-valid');
+        this.classList.add('is-invalid');
+    }
+    
+    // Check password match
+    if (confirmPassword.value && confirmPassword.value !== password) {
+        confirmPassword.classList.add('is-invalid');
+        button.disabled = true;
+    } else if (confirmPassword.value === password && password.length > 0) {
+        confirmPassword.classList.remove('is-invalid');
+        confirmPassword.classList.add('is-valid');
+        button.disabled = false;
+    }
+});
+
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('reg_password').value;
+    const button = document.querySelector('#registerForm button[type="submit"]');
+    
+    if (this.value !== password) {
+        this.classList.add('is-invalid');
+        button.disabled = true;
+    } else {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+        button.disabled = false;
+    }
+});
+</script>
+{% endblock %}

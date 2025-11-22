@@ -1,153 +1,87 @@
-# 🌱 AI Crop & Fertilizer Recommendation System
+# 🌱 AI Crop & Fertilizer Advisor
 
-A machine learning-powered web application that provides intelligent crop and fertilizer recommendations based on soil conditions and environmental factors.
+A simple AI-powered web application that recommends the best crops and fertilizers based on soil and environmental conditions.
 
-## 🎯 Key Features
+## Features
 
-### 🤖 AI-Powered Recommendations
-- **Crop Prediction**: Suggests optimal crops based on soil and environmental conditions
-- **Fertilizer Recommendation**: Recommends appropriate fertilizers for specific soil compositions
-- **Confidence Scoring**: Provides confidence percentages for each recommendation
-- **Real-time Analysis**: Instant predictions with optimized machine learning models
+- 🤖 **AI Predictions** - Random Forest machine learning models
+- 🌾 **Crop Recommendations** - Suggests optimal crops for your conditions
+- 💊 **Fertilizer Recommendations** - Recommends best fertilizers
+- 📊 **Confidence Scores** - Shows prediction confidence percentages
+- 🎨 **Modern UI** - Clean, responsive Bootstrap 5 interface
 
-### 🔐 User Management
-- **Secure Authentication**: User registration and login system
-- **Password Validation**: Strong password requirements with real-time feedback
-- **Session Management**: Secure user sessions with Flask-SQLAlchemy
-- **User Dashboard**: Personalized interface for each user
+## Quick Start
 
-### 📊 Data Visualization
-- **Interactive Forms**: User-friendly soil analysis input forms
-- **Progress Indicators**: Visual confidence bars for predictions
-- **Dataset Explorer**: Browse and search through the training dataset
-- **Responsive Design**: Mobile-friendly Bootstrap 5 interface
-
-## 📈 Machine Learning Models
-
-### Algorithm: Random Forest Classifier
-- **Type**: Ensemble learning method using decision trees
-- **Configuration**: 50 estimators for optimal performance-accuracy balance
-- **Training Strategy**: Separate models for crop and fertilizer predictions
-- **Optimization**: Lightweight design suitable for serverless deployment
-
-### Model Performance
-- **Training Dataset**: 20% sample (1,600 records) for faster training
-- **Accuracy**: High prediction accuracy with comprehensive validation
-- **Memory Efficiency**: Compressed models (~5MB) optimized for Vercel deployment
-- **Preprocessing**: LabelEncoder for categorical features, ensuring robust handling of soil types and nutrient levels
-
-### Model Features
-- **Input Parameters**: 7 key agricultural factors
-  - Soil Type (Sandy, Loamy, Black, Red, Clayey)
-  - Temperature (°C)
-  - Humidity (%)
-  - Soil Moisture (%)
-  - Nitrogen content (mg/kg)
-  - Potassium content (mg/kg)
-  - Phosphorus content (mg/kg)
-
-- **Output Predictions**:
-  - **Crop Types**: Maize, Sugarcane, Cotton, Tobacco, Paddy, Barley, Wheat, Millets, and more
-  - **Fertilizer Types**: Urea, DAP, 14-35-14, 28-28, 17-17-17, 20-20, and specialized blends
-
-## 📊 Dataset Information
-
-### Data Source
-- **Size**: 8,001 agricultural records
-- **Origin**: Comprehensive agricultural database with real-world farming data
-- **Coverage**: Multiple soil types, climate conditions, and geographic regions
-
-### Data Structure
-```
-Features (Input):
-├── Environmental Factors
-│   ├── Temperature (°C): 10-50°C range
-│   ├── Humidity (%): 20-100% relative humidity
-│   └── Moisture (%): 10-80% soil moisture content
-├── Soil Characteristics
-│   ├── Soil Type: 5 major soil classifications
-│   ├── Nitrogen (N): 0-100 mg/kg
-│   ├── Potassium (K): 0-100 mg/kg
-│   └── Phosphorus (P): 0-100 mg/kg
-└── Target Variables (Output)
-    ├── Crop Type: 22+ different crop varieties
-    └── Fertilizer Name: 15+ fertilizer formulations
-```
-
-### Data Quality
-- **Completeness**: No missing values, all records contain complete information
-- **Diversity**: Covers various agricultural scenarios and conditions
-- **Preprocessing**: Categorical encoding and numerical normalization
-- **Validation**: Cross-validated for model training and testing
-
-## � Technical Architecture
-
-### Backend Stack
-- **Framework**: Flask 3.0 (Python web framework)
-- **Database**: SQLite with Flask-SQLAlchemy ORM
-- **ML Library**: Scikit-learn for machine learning models
-- **Data Processing**: Pandas and NumPy for data manipulation
-
-### Frontend Stack
-- **UI Framework**: Bootstrap 5 for responsive design
-- **Icons**: Bootstrap Icons for visual elements
-- **JavaScript**: Vanilla JS for form validation and interactions
-- **Styling**: Custom CSS with modern design principles
-
-### Deployment Optimization
-- **Platform**: Optimized for Vercel serverless deployment
-- **Dependencies**: Minimal package requirements (7 essential libraries)
-- **Performance**: Model caching with singleton pattern
-- **Memory**: Efficient memory usage under 1GB limit
-
-## 🚀 Quick Start
-
-### Installation
+### 1. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### Train Models
+### 2. Train Models
 ```bash
 python main.py
 ```
 
-### Run Locally
+### 3. Run App
 ```bash
 python app.py
 ```
 
-### Deploy to Vercel
-```bash
-vercel --prod
+Visit `http://localhost:5000` in your browser.
+
+## How It Works
+
+1. Enter your soil and environmental data:
+   - Soil Type (Sandy, Loamy, Black, Red, Clayey)
+   - Temperature (°C)
+   - Humidity (%)
+   - Soil Moisture (%)
+   - Nitrogen, Potassium, Phosphorus levels (mg/kg)
+
+2. Click "Get AI Recommendations"
+
+3. View recommended crop and fertilizer with confidence scores
+
+## Dataset
+
+- **Size**: 8,001 agricultural records
+- **Features**: 7 input parameters (soil type, temperature, humidity, moisture, N, P, K)
+- **Targets**: Crop types and fertilizer recommendations
+
+## Model Details
+
+- **Algorithm**: Random Forest Classifier
+- **Estimators**: 100 decision trees
+- **Training**: 80/20 train-test split
+- **Features**: Automatic categorical encoding
+
+## Project Structure
+
+```
+├── app.py              # Flask web application
+├── main.py             # ML model training & prediction
+├── requirements.txt    # Python dependencies
+├── data/
+│   └── data.csv       # Agricultural dataset
+├── model/             # Trained models (auto-generated)
+└── templates/         # HTML templates
+    ├── home.html      # Input form
+    ├── results.html   # Predictions display
+    └── error.html     # Error page
 ```
 
-## 📦 Dependencies
-- Flask==3.0.0 (Web framework)
-- Flask-SQLAlchemy==3.1.1 (Database ORM)
-- pandas==2.1.4 (Data manipulation)
-- numpy==1.24.3 (Numerical computing)
-- scikit-learn==1.3.2 (Machine learning)
-- joblib==1.3.2 (Model serialization)
-- Werkzeug==3.0.1 (WSGI utilities)
+## Deploy to Vercel
 
-## 🎯 Use Cases
+1. Install Vercel CLI: `npm i -g vercel`
+2. Run: `vercel --prod`
 
-### For Farmers
-- Get crop recommendations based on current soil conditions
-- Optimize fertilizer usage for better yield
-- Make data-driven agricultural decisions
+## Technologies
 
-### For Agricultural Consultants
-- Provide scientific recommendations to clients
-- Analyze soil conditions efficiently
-- Support sustainable farming practices
-
-### For Researchers
-- Explore agricultural datasets
-- Understand crop-soil relationships
-- Validate farming hypotheses with data
+- **Backend**: Flask 3.0
+- **ML**: scikit-learn, pandas, numpy
+- **Frontend**: Bootstrap 5, HTML5
+- **Model Storage**: joblib
 
 ---
 
-**Built with ❤️ for sustainable agriculture and smart farming**
+**Simple. Fast. Intelligent.** 🚀

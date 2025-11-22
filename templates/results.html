@@ -1,227 +1,103 @@
-{% extends "base.html" %}
-
-{% block title %}Results - AI Crop Advisor{% endblock %}
-
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-10">
-        <!-- Results Header -->
-        <div class="text-center mb-4">
-            <h2 class="text-success">
-                <i class="bi bi-check-circle"></i> AI Recommendations Ready!
-            </h2>
-            <p class="lead text-muted">Based on your soil analysis</p>
-        </div>
-
-        <!-- Recommendations Row -->
-        <div class="row mb-4">
-            <!-- Crop Recommendation -->
-            <div class="col-md-6 mb-3">
-                <div class="card result-card h-100">
-                    <div class="card-header bg-success text-white text-center">
-                        <h4 class="mb-0">
-                            <i class="bi bi-flower1"></i> Recommended Crop
-                        </h4>
-                    </div>
-                    <div class="card-body text-center">
-                        {% if crop_result.prediction and crop_result.prediction != 'Error' %}
-                            <h3 class="text-success mb-3">{{ crop_result.prediction }}</h3>
-                            {% if crop_result.confidence %}
-                                <div class="mb-3">
-                                    <div class="progress mb-2">
-                                        <div class="progress-bar bg-success" role="progressbar" 
-                                             style="width: {{ crop_result.confidence }}%" 
-                                             aria-valuenow="{{ crop_result.confidence }}" 
-                                             aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Confidence: {{ "%.1f"|format(crop_result.confidence) }}%</small>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Recommendations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .confidence-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+        }
+        .confidence-fill {
+            background: rgba(255,255,255,0.9);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card mt-5">
+                    <div class="card-body p-5">
+                        <h1 class="text-center mb-4">🎯 AI Recommendations</h1>
+                        
+                        <!-- Crop Recommendation -->
+                        <div class="result-card">
+                            <h3>🌾 Recommended Crop</h3>
+                            <h2 class="display-4">{{ crop.prediction }}</h2>
+                            <p class="mb-2">Confidence:</p>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: {{ crop.confidence }}%">
+                                    {{ crop.confidence }}%
                                 </div>
-                            {% endif %}
-                            <p class="text-muted">
-                                This crop is most suitable for your soil conditions and will likely yield optimal results.
-                            </p>
-                        {% else %}
-                            <div class="alert alert-warning">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                Unable to generate crop recommendation. Please check your input values.
-                                {% if crop_result.error %}
-                                    <br><small>Error: {{ crop_result.error }}</small>
-                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fertilizer Recommendation -->
-            <div class="col-md-6 mb-3">
-                <div class="card result-card h-100">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4 class="mb-0">
-                            <i class="bi bi-droplet-half"></i> Recommended Fertilizer
-                        </h4>
-                    </div>
-                    <div class="card-body text-center">
-                        {% if fertilizer_result.prediction and fertilizer_result.prediction != 'Error' %}
-                            <h3 class="text-primary mb-3">{{ fertilizer_result.prediction }}</h3>
-                            {% if fertilizer_result.confidence %}
-                                <div class="mb-3">
-                                    <div class="progress mb-2">
-                                        <div class="progress-bar bg-primary" role="progressbar" 
-                                             style="width: {{ fertilizer_result.confidence }}%" 
-                                             aria-valuenow="{{ fertilizer_result.confidence }}" 
-                                             aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Confidence: {{ "%.1f"|format(fertilizer_result.confidence) }}%</small>
+                        </div>
+                        
+                        <!-- Fertilizer Recommendation -->
+                        <div class="result-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <h3>💊 Recommended Fertilizer</h3>
+                            <h2 class="display-4">{{ fertilizer.prediction }}</h2>
+                            <p class="mb-2">Confidence:</p>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: {{ fertilizer.confidence }}%">
+                                    {{ fertilizer.confidence }}%
                                 </div>
-                            {% endif %}
-                            <p class="text-muted">
-                                This fertilizer will provide the optimal nutrient balance for your soil and crop combination.
-                            </p>
-                        {% else %}
-                            <div class="alert alert-warning">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                Unable to generate fertilizer recommendation. Please check your input values.
-                                {% if fertilizer_result.error %}
-                                    <br><small>Error: {{ fertilizer_result.error }}</small>
-                                {% endif %}
                             </div>
-                        {% endif %}
+                        </div>
+                        
+                        <!-- Input Summary -->
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">📊 Your Input Data</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Soil Type:</strong> {{ input_data.soil_type }}</p>
+                                        <p><strong>Temperature:</strong> {{ input_data.temperature }}°C</p>
+                                        <p><strong>Humidity:</strong> {{ input_data.humidity }}%</p>
+                                        <p><strong>Moisture:</strong> {{ input_data.moisture }}%</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Nitrogen:</strong> {{ input_data.nitrogen }} mg/kg</p>
+                                        <p><strong>Potassium:</strong> {{ input_data.potassium }} mg/kg</p>
+                                        <p><strong>Phosphorus:</strong> {{ input_data.phosphorus }} mg/kg</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="/" class="btn btn-primary btn-lg w-100 mt-4">
+                            ← Try Another Prediction
+                        </a>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Summary -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-list-check"></i> Your Soil Analysis Summary
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-sm">
-                            <tr>
-                                <td><strong>Soil Type:</strong></td>
-                                <td>{{ input_data.soil_type }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Temperature:</strong></td>
-                                <td>{{ input_data.temperature }}°C</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Humidity:</strong></td>
-                                <td>{{ input_data.humidity }}%</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Soil Moisture:</strong></td>
-                                <td>{{ input_data.moisture }}%</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-sm">
-                            <tr>
-                                <td><strong>Nitrogen (N):</strong></td>
-                                <td>{{ input_data.nitrogen }} mg/kg</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Potassium (K):</strong></td>
-                                <td>{{ input_data.potassium }} mg/kg</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Phosphorus (P):</strong></td>
-                                <td>{{ input_data.phosphorus }} mg/kg</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">
-                                    <small class="text-muted">
-                                        <i class="bi bi-clock"></i> Analysis completed at {{ moment().format('YYYY-MM-DD HH:mm') }}
-                                    </small>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="text-center mb-4">
-            <a href="{{ url_for('predict') }}" class="btn btn-outline-success btn-lg me-3">
-                <i class="bi bi-arrow-left-circle"></i> New Prediction
-            </a>
-            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg">
-                <i class="bi bi-house"></i> Back to Dashboard
-            </a>
-        </div>
-
-        <!-- Additional Information -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-info-circle"></i> Important Notes
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>About These Recommendations:</h6>
-                        <ul class="small">
-                            <li>Based on machine learning analysis of agricultural data</li>
-                            <li>Consider local climate and seasonal factors</li>
-                            <li>Consult with local agricultural experts</li>
-                            <li>Test soil regularly for best results</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Next Steps:</h6>
-                        <ul class="small">
-                            <li>Verify recommendations with local suppliers</li>
-                            <li>Consider crop rotation practices</li>
-                            <li>Monitor soil health regularly</li>
-                            <li>Adjust fertilizer application as needed</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="alert alert-info mt-3">
-                    <i class="bi bi-lightbulb"></i>
-                    <strong>Tip:</strong> These AI recommendations should supplement, not replace, professional agricultural advice and local expertise.
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<script>
-// Add some visual effects for the results
-document.addEventListener('DOMContentLoaded', function() {
-    // Animate progress bars
-    const progressBars = document.querySelectorAll('.progress-bar');
-    progressBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0%';
-        setTimeout(() => {
-            bar.style.transition = 'width 1.5s ease-in-out';
-            bar.style.width = width;
-        }, 500);
-    });
-    
-    // Add success animation to result cards
-    const resultCards = document.querySelectorAll('.result-card');
-    resultCards.forEach((card, index) => {
-        setTimeout(() => {
-            card.style.transform = 'scale(1.02)';
-            card.style.transition = 'transform 0.3s ease';
-            setTimeout(() => {
-                card.style.transform = 'scale(1)';
-            }, 300);
-        }, index * 200);
-    });
-});
-</script>
-{% endblock %}
+</body>
+</html>
