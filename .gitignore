@@ -1,3 +1,6 @@
 /venv
-model/*.pkl
 .vercel
+__pycache__/
+*.pyc
+.env
+instance/
