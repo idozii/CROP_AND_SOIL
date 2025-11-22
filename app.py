@@ -1,6 +1,3 @@
-"""
-Simple Flask app for Crop & Fertilizer Recommendations
-"""
 from flask import Flask, request, render_template
 from main import predict_crop, predict_fertilizer
 
@@ -15,7 +12,6 @@ def home():
 def predict():
     """Make predictions"""
     try:
-        # Get form data
         data = {
             'soil_type': request.form.get('soil_type'),
             'temperature': request.form.get('temperature'),
@@ -26,7 +22,6 @@ def predict():
             'phosphorus': request.form.get('phosphorus')
         }
         
-        # Get predictions
         crop_result = predict_crop(
             data['soil_type'],
             data['temperature'],
@@ -54,7 +49,6 @@ def predict():
     except Exception as e:
         return render_template('error.html', error=str(e))
 
-# Vercel handler
 app_handler = app
 
 if __name__ == '__main__':

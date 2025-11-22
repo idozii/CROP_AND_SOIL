@@ -73,16 +73,23 @@ def predict_crop(soil_type, temperature, humidity, moisture,
         encoders = load_model('encoders')
         features = load_model('features')
         
+        # Convert inputs to proper types
+        temperature = float(temperature)
+        humidity = float(humidity)
+        moisture = float(moisture)
+        nitrogen = float(nitrogen)
+        potassium = float(potassium)
+        phosphorus = float(phosphorus)
+        
         # Create input dataframe
         input_data = pd.DataFrame([[
             soil_type, temperature, humidity, moisture,
             nitrogen, potassium, phosphorus
         ]], columns=features)
         
-        # Encode categorical features
-        for col in encoders:
-            if col in input_data.columns:
-                input_data[col] = encoders[col].transform(input_data[col])
+        # Encode categorical features (only soil_type)
+        if 'Soil Type' in input_data.columns and 'Soil Type' in encoders:
+            input_data['Soil Type'] = encoders['Soil Type'].transform(input_data['Soil Type'])
         
         # Predict
         prediction = model.predict(input_data)[0]
@@ -90,11 +97,12 @@ def predict_crop(soil_type, temperature, humidity, moisture,
         confidence = float(max(probas) * 100)
         
         return {
-            'prediction': prediction,
+            'prediction': str(prediction),
             'confidence': round(confidence, 2)
         }
     except Exception as e:
-        return {'prediction': 'Error', 'confidence': 0, 'error': str(e)}
+        print(f"Crop prediction error: {e}")
+        return {'prediction': f'Error: {str(e)}', 'confidence': 0}
 
 def predict_fertilizer(soil_type, temperature, humidity, moisture,
                        nitrogen, potassium, phosphorus):
@@ -105,16 +113,23 @@ def predict_fertilizer(soil_type, temperature, humidity, moisture,
         encoders = load_model('encoders')
         features = load_model('features')
         
+        # Convert inputs to proper types
+        temperature = float(temperature)
+        humidity = float(humidity)
+        moisture = float(moisture)
+        nitrogen = float(nitrogen)
+        potassium = float(potassium)
+        phosphorus = float(phosphorus)
+        
         # Create input dataframe
         input_data = pd.DataFrame([[
             soil_type, temperature, humidity, moisture,
             nitrogen, potassium, phosphorus
         ]], columns=features)
         
-        # Encode categorical features
-        for col in encoders:
-            if col in input_data.columns:
-                input_data[col] = encoders[col].transform(input_data[col])
+        # Encode categorical features (only soil_type)
+        if 'Soil Type' in input_data.columns and 'Soil Type' in encoders:
+            input_data['Soil Type'] = encoders['Soil Type'].transform(input_data['Soil Type'])
         
         # Predict
         prediction = model.predict(input_data)[0]
@@ -122,11 +137,12 @@ def predict_fertilizer(soil_type, temperature, humidity, moisture,
         confidence = float(max(probas) * 100)
         
         return {
-            'prediction': prediction,
+            'prediction': str(prediction),
             'confidence': round(confidence, 2)
         }
     except Exception as e:
-        return {'prediction': 'Error', 'confidence': 0, 'error': str(e)}
+        print(f"Fertilizer prediction error: {e}")
+        return {'prediction': f'Error: {str(e)}', 'confidence': 0}
 
 if __name__ == '__main__':
     train_models()
