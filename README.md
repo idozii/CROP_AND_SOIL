@@ -83,5 +83,3 @@ Visit `http://localhost:5000` in your browser.
 - **Model Storage**: joblib
 
 ---
-
-**Simple. Fast. Intelligent.** 🚀

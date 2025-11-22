@@ -5,7 +5,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    """Home page with prediction form"""
     return render_template('home.html')
 
 @app.route('/predict', methods=['POST'])
