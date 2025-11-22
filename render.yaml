@@ -2,8 +2,8 @@ services:
   - type: web
     name: crop-soil-predictor
     runtime: python
-    buildCommand: pip install -r requirements.txt && python main.py
+    buildCommand: pip install -r requirements.txt && python -c "from main import train_models; train_models()"
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.0
+        value: 3.10
