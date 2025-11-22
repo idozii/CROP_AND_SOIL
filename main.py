@@ -44,10 +44,10 @@ def train_models():
     # Train crop model with better parameters
     print("\nTraining crop model...")
     crop_model = RandomForestClassifier(
-        n_estimators=300,
-        max_depth=25,
-        min_samples_split=2,
-        min_samples_leaf=1,
+        n_estimators=50,
+        max_depth=20,
+        min_samples_split=5,
+        min_samples_leaf=2,
         max_features='sqrt',
         random_state=42,
         n_jobs=-1,
@@ -59,10 +59,10 @@ def train_models():
     # Train fertilizer model with better parameters
     print("Training fertilizer model...")
     fert_model = RandomForestClassifier(
-        n_estimators=300,
-        max_depth=25,
-        min_samples_split=2,
-        min_samples_leaf=1,
+        n_estimators=50,
+        max_depth=20,
+        min_samples_split=5,
+        min_samples_leaf=2,
         max_features='sqrt',
         random_state=42,
         n_jobs=-1,
@@ -71,11 +71,11 @@ def train_models():
     fert_model.fit(X_train_fert, y_fert_train)
     fert_acc = fert_model.score(X_test_fert, y_fert_test)
     
-    # Save models
+    # Save models with compression
     os.makedirs(os.path.join(BASE_DIR, 'model'), exist_ok=True)
-    joblib.dump(crop_model, os.path.join(BASE_DIR, 'model', 'crop_model.pkl'))
-    joblib.dump(fert_model, os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'))
-    joblib.dump(soil_encoder, os.path.join(BASE_DIR, 'model', 'soil_encoder.pkl'))
+    joblib.dump(crop_model, os.path.join(BASE_DIR, 'model', 'crop_model.pkl'), compress=9)
+    joblib.dump(fert_model, os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'), compress=9)
+    joblib.dump(soil_encoder, os.path.join(BASE_DIR, 'model', 'soil_encoder.pkl'), compress=9)
     
     print(f"\n✅ Models saved successfully!")
     print(f"📊 Crop model accuracy: {crop_acc:.2%}")
