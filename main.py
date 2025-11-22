@@ -25,22 +25,20 @@ def train_models():
     data = pd.read_csv(os.path.join(BASE_DIR, 'data', 'data.csv'))
     
     # Prepare features and targets
-    X = data.drop(['Crop Type', 'Fertilizer Name'], axis=1)
+    X = data[['Temparature', 'Humidity', 'Moisture', 'Soil Type', 'Nitrogen', 'Potassium', 'Phosphorous']]
     y_crop = data['Crop Type']
     y_fert = data['Fertilizer Name']
     
-    # Encode categorical features
-    encoders = {}
-    for col in X.select_dtypes(include='object').columns:
-        le = LabelEncoder()
-        X[col] = le.fit_transform(X[col])
-        encoders[col] = le
+    # Encode only Soil Type
+    soil_encoder = LabelEncoder()
+    X_encoded = X.copy()
+    X_encoded['Soil Type'] = soil_encoder.fit_transform(X['Soil Type'])
     
     # Split data
     X_train, X_test, y_crop_train, y_crop_test = train_test_split(
-        X, y_crop, test_size=0.2, random_state=42)
+        X_encoded, y_crop, test_size=0.2, random_state=42)
     _, _, y_fert_train, y_fert_test = train_test_split(
-        X, y_fert, test_size=0.2, random_state=42)
+        X_encoded, y_fert, test_size=0.2, random_state=42)
     
     # Train models
     print("Training crop model...")
@@ -57,8 +55,7 @@ def train_models():
     os.makedirs(os.path.join(BASE_DIR, 'model'), exist_ok=True)
     joblib.dump(crop_model, os.path.join(BASE_DIR, 'model', 'crop_model.pkl'))
     joblib.dump(fert_model, os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'))
-    joblib.dump(encoders, os.path.join(BASE_DIR, 'model', 'encoders.pkl'))
-    joblib.dump(X.columns.tolist(), os.path.join(BASE_DIR, 'model', 'features.pkl'))
+    joblib.dump(soil_encoder, os.path.join(BASE_DIR, 'model', 'soil_encoder.pkl'))
     
     print(f"\nModels saved!")
     print(f"Crop accuracy: {crop_acc:.4f}")
@@ -70,26 +67,21 @@ def predict_crop(soil_type, temperature, humidity, moisture,
     try:
         # Load models
         model = load_model('crop_model')
-        encoders = load_model('encoders')
-        features = load_model('features')
+        soil_encoder = load_model('soil_encoder')
         
         # Convert inputs to proper types
-        temperature = float(temperature)
-        humidity = float(humidity)
-        moisture = float(moisture)
-        nitrogen = float(nitrogen)
-        potassium = float(potassium)
-        phosphorus = float(phosphorus)
+        temp = float(temperature)
+        hum = float(humidity)
+        mois = float(moisture)
+        n = float(nitrogen)
+        k = float(potassium)
+        p = float(phosphorus)
         
-        # Create input dataframe
-        input_data = pd.DataFrame([[
-            soil_type, temperature, humidity, moisture,
-            nitrogen, potassium, phosphorus
-        ]], columns=features)
+        # Encode soil type
+        soil_encoded = soil_encoder.transform([soil_type])[0]
         
-        # Encode categorical features (only soil_type)
-        if 'Soil Type' in input_data.columns and 'Soil Type' in encoders:
-            input_data['Soil Type'] = encoders['Soil Type'].transform(input_data['Soil Type'])
+        # Create input array in correct order: Temparature, Humidity, Moisture, Soil Type, Nitrogen, Potassium, Phosphorous
+        input_data = np.array([[temp, hum, mois, soil_encoded, n, k, p]])
         
         # Predict
         prediction = model.predict(input_data)[0]
@@ -102,6 +94,8 @@ def predict_crop(soil_type, temperature, humidity, moisture,
         }
     except Exception as e:
         print(f"Crop prediction error: {e}")
+        import traceback
+        traceback.print_exc()
         return {'prediction': f'Error: {str(e)}', 'confidence': 0}
 
 def predict_fertilizer(soil_type, temperature, humidity, moisture,
@@ -110,26 +104,21 @@ def predict_fertilizer(soil_type, temperature, humidity, moisture,
     try:
         # Load models
         model = load_model('fertilizer_model')
-        encoders = load_model('encoders')
-        features = load_model('features')
+        soil_encoder = load_model('soil_encoder')
         
         # Convert inputs to proper types
-        temperature = float(temperature)
-        humidity = float(humidity)
-        moisture = float(moisture)
-        nitrogen = float(nitrogen)
-        potassium = float(potassium)
-        phosphorus = float(phosphorus)
+        temp = float(temperature)
+        hum = float(humidity)
+        mois = float(moisture)
+        n = float(nitrogen)
+        k = float(potassium)
+        p = float(phosphorus)
         
-        # Create input dataframe
-        input_data = pd.DataFrame([[
-            soil_type, temperature, humidity, moisture,
-            nitrogen, potassium, phosphorus
-        ]], columns=features)
+        # Encode soil type
+        soil_encoded = soil_encoder.transform([soil_type])[0]
         
-        # Encode categorical features (only soil_type)
-        if 'Soil Type' in input_data.columns and 'Soil Type' in encoders:
-            input_data['Soil Type'] = encoders['Soil Type'].transform(input_data['Soil Type'])
+        # Create input array in correct order: Temparature, Humidity, Moisture, Soil Type, Nitrogen, Potassium, Phosphorous
+        input_data = np.array([[temp, hum, mois, soil_encoded, n, k, p]])
         
         # Predict
         prediction = model.predict(input_data)[0]
@@ -142,6 +131,8 @@ def predict_fertilizer(soil_type, temperature, humidity, moisture,
         }
     except Exception as e:
         print(f"Fertilizer prediction error: {e}")
+        import traceback
+        traceback.print_exc()
         return {'prediction': f'Error: {str(e)}', 'confidence': 0}
 
 if __name__ == '__main__':
