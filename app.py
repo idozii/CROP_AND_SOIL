@@ -1,24 +1,7 @@
 from flask import Flask, request, render_template
 from main import predict_crop, predict_fertilizer
-import os
 
 app = Flask(__name__)
-
-# Ensure models are trained on startup
-@app.before_request
-def ensure_models_exist():
-    """Train models if they don't exist (first request only)"""
-    if not hasattr(app, 'models_checked'):
-        model_dir = os.path.join(os.path.dirname(__file__), 'model')
-        crop_model_path = os.path.join(model_dir, 'crop_model.pkl')
-        
-        if not os.path.exists(crop_model_path):
-            print("🔧 Models not found, training now...")
-            from main import train_models
-            train_models()
-            print("✅ Models ready!")
-        
-        app.models_checked = True
 
 @app.route('/')
 def home():

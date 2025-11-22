@@ -10,15 +10,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 _model_cache = {}
 
 def load_model(model_name):
-    """Load model with caching, train if not exists"""
+    """Load model with caching"""
     if model_name not in _model_cache:
         model_path = os.path.join(BASE_DIR, 'model', f'{model_name}.pkl')
-        
-        # If models don't exist, train them first
-        if not os.path.exists(model_path):
-            print(f"Model {model_name} not found, training models...")
-            train_models()
-        
         _model_cache[model_name] = joblib.load(model_path)
     return _model_cache[model_name]
 
