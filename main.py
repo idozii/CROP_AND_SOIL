@@ -24,25 +24,20 @@ def train_models():
     print(f"Dataset size: {len(data)} records")
     print(f"Unique crops: {data['Crop Type'].nunique()}")
     print(f"Unique fertilizers: {data['Fertilizer Name'].nunique()}")
-    
-    # Prepare features and targets
+
     X = data[['Temparature', 'Humidity', 'Moisture', 'Soil Type', 'Nitrogen', 'Potassium', 'Phosphorous']]
     y_crop = data['Crop Type']
     y_fert = data['Fertilizer Name']
-    
-    # Encode Soil Type only
+ 
     soil_encoder = LabelEncoder()
     X_encoded = X.copy()
     X_encoded['Soil Type'] = soil_encoder.fit_transform(X['Soil Type'])
-    
-    # Split data with stratification
+
     X_train, X_test, y_crop_train, y_crop_test = train_test_split(
         X_encoded, y_crop, test_size=0.2, random_state=42, stratify=y_crop)
     X_train_fert, X_test_fert, y_fert_train, y_fert_test = train_test_split(
         X_encoded, y_fert, test_size=0.2, random_state=42, stratify=y_fert)
-    
-    # Train crop model with better parameters
-    print("\nTraining crop model...")
+
     crop_model = RandomForestClassifier(
         n_estimators=50,
         max_depth=20,
@@ -55,9 +50,7 @@ def train_models():
     )
     crop_model.fit(X_train, y_crop_train)
     crop_acc = crop_model.score(X_test, y_crop_test)
-    
-    # Train fertilizer model with better parameters
-    print("Training fertilizer model...")
+
     fert_model = RandomForestClassifier(
         n_estimators=50,
         max_depth=20,
@@ -71,39 +64,31 @@ def train_models():
     fert_model.fit(X_train_fert, y_fert_train)
     fert_acc = fert_model.score(X_test_fert, y_fert_test)
     
-    # Save models with compression
     os.makedirs(os.path.join(BASE_DIR, 'model'), exist_ok=True)
     joblib.dump(crop_model, os.path.join(BASE_DIR, 'model', 'crop_model.pkl'), compress=9)
     joblib.dump(fert_model, os.path.join(BASE_DIR, 'model', 'fertilizer_model.pkl'), compress=9)
     joblib.dump(soil_encoder, os.path.join(BASE_DIR, 'model', 'soil_encoder.pkl'), compress=9)
-    
-    print(f"\n✅ Models saved successfully!")
-    print(f"📊 Crop model accuracy: {crop_acc:.2%}")
-    print(f"📊 Fertilizer model accuracy: {fert_acc:.2%}")
+
+    print(f"Crop model accuracy: {crop_acc:.2%}")
+    print(f"Fertilizer model accuracy: {fert_acc:.2%}")
 
 def predict_crop(soil_type, temperature, humidity, moisture,
                  nitrogen, potassium, phosphorus):
     """Predict best crop"""
     try:
-        # Load models
         model = load_model('crop_model')
         soil_encoder = load_model('soil_encoder')
-        
-        # Convert inputs to proper types
+
         temp = float(temperature)
         hum = float(humidity)
         mois = float(moisture)
         n = float(nitrogen)
         k = float(potassium)
         p = float(phosphorus)
-        
-        # Encode soil type
+
         soil_encoded = soil_encoder.transform([soil_type])[0]
-        
-        # Create input array: Temparature, Humidity, Moisture, Soil Type, Nitrogen, Potassium, Phosphorous
+
         input_data = np.array([[temp, hum, mois, soil_encoded, n, k, p]])
-        
-        # Predict
         prediction = model.predict(input_data)[0]
         probas = model.predict_proba(input_data)[0]
         confidence = float(max(probas) * 100)
@@ -122,11 +107,9 @@ def predict_fertilizer(soil_type, temperature, humidity, moisture,
                        nitrogen, potassium, phosphorus):
     """Predict best fertilizer"""
     try:
-        # Load models
         model = load_model('fertilizer_model')
         soil_encoder = load_model('soil_encoder')
-        
-        # Convert inputs to proper types
+    
         temp = float(temperature)
         hum = float(humidity)
         mois = float(moisture)
@@ -134,13 +117,9 @@ def predict_fertilizer(soil_type, temperature, humidity, moisture,
         k = float(potassium)
         p = float(phosphorus)
         
-        # Encode soil type
         soil_encoded = soil_encoder.transform([soil_type])[0]
         
-        # Create input array: Temparature, Humidity, Moisture, Soil Type, Nitrogen, Potassium, Phosphorous
         input_data = np.array([[temp, hum, mois, soil_encoded, n, k, p]])
-        
-        # Predict
         prediction = model.predict(input_data)[0]
         probas = model.predict_proba(input_data)[0]
         confidence = float(max(probas) * 100)
