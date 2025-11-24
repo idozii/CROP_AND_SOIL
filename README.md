@@ -1,6 +1,7 @@
 # 🌱 AI Crop & Fertilizer Advisor
 
 A simple AI-powered web application that recommends the best crops and fertilizers based on soil and environmental conditions.
+[Link](https://crop-and-soil-1.onrender.com/)
 
 ## Features
 
