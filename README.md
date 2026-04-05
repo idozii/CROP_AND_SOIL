@@ -79,36 +79,6 @@ Visit `http://localhost:5000` in your browser.
     └── error.html     # Error page
 ```
 
-## Deploy to Vercel (Free)
-
-This app can run on Vercel if you use an external database.
-
-### Required Environment Variables
-
-- `SECRET_KEY` = strong random string
-- `DATABASE_URL` = hosted PostgreSQL URL
-
-### Suggested Free DB Providers
-
-- Supabase (Postgres)
-- Neon (Postgres)
-
-### Steps
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Add env vars in Vercel project settings (`SECRET_KEY`, `DATABASE_URL`)
-3. Run: `vercel --prod`
-
-## Deploy to Other Free Platforms
-
-1. Render Free Web Service
-    - Already configured via `render.yaml`
-    - Add `SECRET_KEY` and `DATABASE_URL` in Render environment settings
-2. Cloud Run free tier
-    - Deploy as container and set same env vars
-3. Railway/Koyeb free plans
-    - Set same env vars and run `gunicorn app:app`
-
 ## Local vs Cloud Database
 
 - Local development without `DATABASE_URL`: uses SQLite file at `instance/crop_and_soil.db`
