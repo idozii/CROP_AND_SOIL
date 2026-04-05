@@ -18,8 +18,16 @@ from notebook_bridge import NotebookLoadError, load_prediction_functions
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE_PATH = BASE_DIR / "instance" / "crop_and_soil.db"
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+IS_VERCEL = os.environ.get("VERCEL") == "1"
+
+if DATABASE_URL:
+    DATABASE_PATH = BASE_DIR / "instance" / "crop_and_soil.db"
+elif IS_VERCEL:
+    # Vercel serverless filesystem is read-only outside /tmp.
+    DATABASE_PATH = Path("/tmp") / "crop_and_soil.db"
+else:
+    DATABASE_PATH = BASE_DIR / "instance" / "crop_and_soil.db"
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-change-me-in-production")
