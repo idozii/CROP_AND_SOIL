@@ -9,7 +9,10 @@ A simple AI-powered web application that recommends the best crops and fertilize
 - 🌾 **Crop Recommendations** - Suggests optimal crops for your conditions
 - 💊 **Fertilizer Recommendations** - Recommends best fertilizers
 - 📊 **Confidence Scores** - Shows prediction confidence percentages
-- 🎨 **Modern UI** - Clean, responsive Bootstrap 5 interface
+- 🎨 **Modern UI** - Clean, responsive dashboard interface
+- 🔐 **User Authentication** - Login/signup and secure sessions
+- 🧠 **Personalized History** - Saves each user's prediction history
+- 📓 **Notebook Inference** - Loads prediction functions from `main.ipynb`
 
 ## Quick Start
 
@@ -18,9 +21,9 @@ A simple AI-powered web application that recommends the best crops and fertilize
 pip install -r requirements.txt
 ```
 
-### 2. Train Models
+### 2. Train Models (from notebook)
 ```bash
-python main.py
+python -c "from notebook_bridge import load_prediction_functions; load_prediction_functions()"
 ```
 
 ### 3. Run App
@@ -60,21 +63,56 @@ Visit `http://localhost:5000` in your browser.
 
 ```
 ├── app.py              # Flask web application
-├── main.py             # ML model training & prediction
+├── main.ipynb          # ML notebook (training + prediction functions)
+├── notebook_bridge.py  # Safe loader for notebook prediction functions
 ├── requirements.txt    # Python dependencies
+├── vercel.json         # Vercel serverless config
+├── render.yaml         # Render deployment config
 ├── data/
 │   └── data.csv       # Agricultural dataset
 ├── model/             # Trained models (auto-generated)
 └── templates/         # HTML templates
-    ├── home.html      # Input form
-    ├── results.html   # Predictions display
+     ├── home.html      # Dashboard + input form
+     ├── login.html     # Login page
+     ├── signup.html    # Signup page
+     ├── results.html   # Predictions display
     └── error.html     # Error page
 ```
 
-## Deploy to Vercel
+## Deploy to Vercel (Free)
+
+This app can run on Vercel if you use an external database.
+
+### Required Environment Variables
+
+- `SECRET_KEY` = strong random string
+- `DATABASE_URL` = hosted PostgreSQL URL
+
+### Suggested Free DB Providers
+
+- Supabase (Postgres)
+- Neon (Postgres)
+
+### Steps
 
 1. Install Vercel CLI: `npm i -g vercel`
-2. Run: `vercel --prod`
+2. Add env vars in Vercel project settings (`SECRET_KEY`, `DATABASE_URL`)
+3. Run: `vercel --prod`
+
+## Deploy to Other Free Platforms
+
+1. Render Free Web Service
+    - Already configured via `render.yaml`
+    - Add `SECRET_KEY` and `DATABASE_URL` in Render environment settings
+2. Cloud Run free tier
+    - Deploy as container and set same env vars
+3. Railway/Koyeb free plans
+    - Set same env vars and run `gunicorn app:app`
+
+## Local vs Cloud Database
+
+- Local development without `DATABASE_URL`: uses SQLite file at `instance/crop_and_soil.db`
+- Cloud with `DATABASE_URL`: uses PostgreSQL (recommended for production and Vercel)
 
 ## Technologies
 
@@ -82,5 +120,6 @@ Visit `http://localhost:5000` in your browser.
 - **ML**: scikit-learn, pandas, numpy
 - **Frontend**: Bootstrap 5, HTML5
 - **Model Storage**: joblib
+- **Database**: SQLite (local) / PostgreSQL (cloud)
 
 ---

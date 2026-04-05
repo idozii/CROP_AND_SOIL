@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up | Crop IQ{% endblock %}
+
+{% block content %}
+<div class="glass-panel p-4 p-md-5 mx-auto" style="max-width: 600px;">
+    <h1 class="brand-title mb-2">Create Account</h1>
+    <p class="soft-muted mb-4">Save every prediction and build your own crop intelligence history.</p>
+
+    <form method="POST" action="{{ url_for('signup') }}" class="row g-3">
+        <div class="col-12">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="full_name" class="form-control" minlength="2" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" minlength="8" required>
+        </div>
+        <div class="col-12 d-grid mt-3">
+            <button type="submit" class="btn btn-brand btn-lg">Create Account</button>
+        </div>
+    </form>
+
+    <p class="mt-4 mb-0 soft-muted">
+        Already have an account?
+        <a href="{{ url_for('login') }}" class="link-success fw-semibold">Log in</a>
+    </p>
+</div>
+{% endblock %}
